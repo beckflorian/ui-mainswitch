@@ -11,6 +11,7 @@
             autoLabel: { value: "" },
             topicAuto: { value: "" },
             timerSek: { value: 0 },
+            switchTo: {value: 0 },
             width: {
                 value: 0,
                 validate: function (v) {
@@ -35,6 +36,17 @@
                 width: '#node-input-width',
                 height: '#node-input-height',
                 group: '#node-input-group'
+            });
+            $("#node-input-switchTo").typedInput({
+              types: [
+                {
+                  value: "fruit",
+                  options: [
+                    { value: 0, label: "Off"},
+                    { value: 2, label: "Auto"},
+                  ]
+                }
+              ]
             });
         }
     });
@@ -70,5 +82,9 @@
     <div class="form-row">
         <label for="node-input-topicAuto"><i class="fa fa-hand"></i> Auto Topic</label>
         <input type="text" id="node-input-topicAuto">
+    </div>
+    <div class="form-row">
+        <label for="node-input-switchTo"><i class="fa fa-hand"></i> Switch To</label>
+        <input type="text" id="node-input-switchTo">
     </div>
 </script>

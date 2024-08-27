@@ -4,12 +4,15 @@ module.exports = function (RED) {
     function UIMainswitchNode (config) {
         RED.nodes.createNode(this, config)
 
-/*        console.info(config)
-        console.info(this)*/
+        // which group are we rendering this widget
+        const group = RED.nodes.getNode(config.group)
+        const base = group.getBase()
+
         this.topicFeedback = config.topicFeedback
         this.topicAuto = config.topicAuto
         this.keppSecs = 140
-        var timerSek = 0
+
+        var node = this
 
         var status = {
           mainSwitch: 0,
@@ -17,37 +20,32 @@ module.exports = function (RED) {
           intervalSecs: 1200,
           auto: 'ud',
           feedback: 'ud',
-          timerSec: -1
+          timerSec: -1,
+          switchToText: 'Off'
         }
 
-        var timer = {}
+        if (config.switchTo == 2) { // check for default values
+           var switchTo = 2
+           status.switchToText = 'Auto'
+        } else {
+           var switchTo = 0
+        }
 
-        var node = this
-
-        // which group are we rendering this widget
-        const group = RED.nodes.getNode(config.group)
-        const base = group.getBase()
-
-        var stateAuto = false
-        var stateTimer = false
-
-        //console.info(mainswitch)
-
-  /*      function ticker () {
-          if (timerSek >= 0) {
-            if (timerSek == 0) {
-              base.emit('upMainswitch:' + node.id, { payload: 0 }, node)
-              mainswitch = 0
+        function ticker (sta) {
+          //console.info(sta) 
+          if (sta.timerSec >= 0) { // Timer active?
+            if (sta.timerSec == 0) { // Timer run down?
+              status.mainSwitch = switchTo // set to default
+              updateStatus()
               stateMachine()
             }
-            node.send({payload: 'timerSek: ' + timerSek})
-            base.emit('upTimer:' + node.id, { payload: timerSek }, node)
-            timerSek = timerSek - 1
+            status.timerSec = sta.timerSec -1
+            updateStatus()
           }
         }
 
-        var tick = setInterval(ticker, 1000)
-*/
+        var tick = setInterval(ticker, 1000, status)
+
         function updateStatus() { // update widget
           base.emit('updateStatus:' + node.id, { payload: status }, node)
         }
@@ -57,13 +55,14 @@ module.exports = function (RED) {
             payload: out,
             topic: 'topicOut'
           })
-          updateStatus()
+          //updateStatus()
         }
 
         function stateMachine() {
           switch (status.mainSwitch) {
             case 0:
               mainswitchOut(false)
+              status.timerSec = 0 // reset Timer (potentially)
               break
             case 1:
               mainswitchOut(true)
@@ -121,25 +120,6 @@ module.exports = function (RED) {
                 updateStatus()
                 stateMachine()
               }
-/*              if (msg.topic == node.topicAuto){
-                switch (msg.payload) {
-                  case 'off':
-                  case false:
-                    base.emit('auto:' + node.id, { payload: 'autoOff' }, node)
-                    stateAuto = false
-                    break
-                  case 'on':
-                  case true:
-                    base.emit('auto:' + node.id, { payload: 'autoOn' }, node)
-                    stateAuto = true
-                    break
-                  default:
-                    base.emit('auto:' + node.id, { payload: 'undefined' }, node)
-                    stateAuto = false
-                }
-              }
-              // base.stores.data.save(base, node, msg)
-              // console.info(msg)*/
             },
             onSocket: {
                 'downMainswitch': function (conn, id, msg) {
@@ -147,7 +127,6 @@ module.exports = function (RED) {
                     if (msg.payload == 3 && status.interval !== undefined){
                       status.timerSec = status.intervalSecs
                     }
-//                    base.emit('upMainswitch:' + node.id, { payload: msg.payload }, node)
                     status.mainSwitch = msg.payload
                     updateStatus()
                     stateMachine()
@@ -157,13 +136,10 @@ module.exports = function (RED) {
                     status.interval = msg.payload
                     status.intervalSecs = msg.secs
                     updateStatus()
-//                    base.emit('updateStatus:' + node.id, { payload: status }, node)
                 },
                 'update-status': function (conn, id, msg) {
                     console.info('"update-status" received:', conn.id, id)
                     updateStatus()
-//                    base.emit('updateStatus:' + node.id, { payload: status }, node)
-//                    base.emit('updateStatus:' + node.id, { payload:{ 'hello': 'world'} }, node)
                 }
             },
             onClose: function () {

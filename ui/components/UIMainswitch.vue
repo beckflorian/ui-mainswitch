@@ -87,25 +87,8 @@
   </v-expansion-panels>
 
 
-        <h1>Example Integrated Widget: {{ id }}</h1>
-
-        <!-- Note: We can use any Vuetify Components by default -->
-        <h2>Using Vuetify Components</h2>
-        <p>
-            <a href="https://vuetifyjs.com/en/components/all/#containment" target="_blank">Vuetify</a> is included by default, so we can include any of their components.
-            Here we have a button that will open a "Hello World" alert:
-        </p>
         <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
         <v-btn @click="alert('Hello World')">Alert "Hello World"</v-btn>
-
-        <h2>Accessing Properties</h2>
-        <p>
-            Your Vue component will be rendered and passed a few built-in properties.
-        </p>
-
-        <h3><code>this.id</code></h3>
-        <p>Each widget has a unique ID, which can be used when sending messages to Node-RED via <code>this.$socket.emit()</code>.</p>
-        <pre>{{ id }}</pre>
 
         <h3><code>this.props</code></h3>
         <p>The <code>props</code> object contains the properties defined in the widget's configuration in Node-RED.</p>
@@ -123,52 +106,6 @@
         </p>
         <pre>{{ state }}</pre>
 
-        <h2>Communications with Node-RED</h2>
-        <p>Events are sent back and forth between Node-RED and Dashboard 2.0 with SocketIO</p>
-        <h3>Sending Node-RED Messages</h3>
-        <p>You can send and receive the built-in events, as well as defining your own:</p>
-        <v-btn @click="send({payload: 'Hello World'})">Send msg</v-btn>
-        <h3>Sending Custom SocketIO Events</h3>
-        <p>
-            You can also send custom events, which can be handled by a custom event handler in Node-RED.
-            The Node-RED-side's handler should have <code>(conn, id, msg)</code> as the input variables.
-        </p>
-        <v-btn @click="test()">Send 'my-custom-event'</v-btn>
-
-        <h2>Data Retention &amp; VueX Stores</h2>
-        <p>Dashboard 2.0 has a built-in VueX datastore. This can be used to store (and retrieve) the latest received messages.</p>
-        <p>Note: the vuex store is cleared on refresh of a screen, at which point, data will be loaded from the Node-RED datastore, should it be present.</p>
-        <p>Send a message to this node in order to see the value here:</p>
-        <pre>{{ messages && messages[id] ? messages[id] : 'No Data' }}</pre>
-        <p>Note that it persists, even after refresh. This is because, in our <code>onInput</code> event handler in our <code>ui-mainswitch.js</code> file, we store the message in the Node-RED datastore.</p>
-
-        <!-- Note: We can use any Vuetify Components by default -->
-        <h2>Styling with Vuetify &amp; CSS</h2>
-        <p>
-            We can define our own CSS within the widget's repository,
-            and expose classes like <code class="ui-mainswitch-class">ui-mainswitch-class</code>
-        </p>
-        <p>
-            Vuetify also comes with a handful of utility classes to assist with styling:
-            <ul>
-                <li v-for="guide in vuetifyStyles" :key="guide.label"><a :href="guide.url" target="_blank">{{ guide.label }}</a></li>
-            </ul>
-        </p>
-
-        <h2>External Dependencies</h2>
-        <p>
-            Any additional libraries you require can be installed as in any other package.
-            When the <code>npm run build</code> command is run, Vite will package everything
-            up into the single <code>.umd.js</code> file.
-        </p>
-        <p>
-            Here, we include the NPM package <code>to-title-case</code>, and bind it's
-            functionality to a VueJS Computed Variable, which automatically re-calculates.
-        </p>
-        <p>
-            <v-text-field v-model="input.title" type="text" />
-            VueJS Computed Variable Output: <i>{{ titleCase }}</i>
-        </p>
     </div>
 </template>
 
