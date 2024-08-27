@@ -11,10 +11,21 @@
                 :color="feedbackColor"
                 prepend-icon="mdi-hydro-power"
                 density="compact"
-                size="x-large"
-                variant="outlined"
+                size="default"
+                variant="flat"
               >
                 {{props.switchLabel}}
+              </v-chip>
+            </v-col>
+            <v-col cols="auto" v-if="showCountdown">
+              <v-chip
+                class="ma-3"
+                color="black"
+                density="compact"
+                variant="flat"
+                size="small"
+              >
+                {{secondsToTime}} bis {{status.switchToText}}
               </v-chip>
             </v-col>
             <v-spacer></v-spacer>
@@ -24,8 +35,8 @@
                 :color="autoColor"
                 prepend-icon="mdi-import"
                 density="compact"
-                variant="outlined"
-                size="x-large"
+                variant="flat"
+                size="default"
               >
                 {{props.autoLabel}}
               </v-chip>
@@ -40,27 +51,27 @@
                 @update:modelValue="updateMainswitch()"
                 class="pa-1"
                 mandatory
-                variant="outlined"
+                variant="flat"
                 divided
                 rounded="l"
-                color="blue"
+                size="small"
               >
-                <v-btn>
-                  <v-icon size="x-large" :color="colorScheme['off']"
+                <v-btn color="red">
+                  <v-icon :color="mainSwitchColor0"
                     >mdi-fan-off</v-icon
                   >
                 </v-btn>
-                <v-btn>
-                  <v-icon size="x-large" :color="colorScheme['on']"
+                <v-btn color="green">
+                  <v-icon :color="mainSwitchColor1"
                     >mdi-fan</v-icon
                   >
                 </v-btn>
-                <v-btn>
-                  <v-icon size="x-large" :color="colorScheme['auto']"
+                <v-btn color="blue">
+                  <v-icon :color="mainSwitchColor2"
                     >mdi-fan-auto</v-icon
                   >
                 </v-btn>
-                <v-btn :color="colorScheme['man']"> {{ showInterval }} </v-btn>
+                <v-btn color="black"> {{ showInterval }} </v-btn>
               </v-btn-toggle>
             </v-col>
             <v-spacer></v-spacer>
@@ -79,14 +90,14 @@
                 thumb-size="10"
                 :readonly="readOnlySlider"
                 class="pa-2"
+                size="small"
               ></v-slider>{{timerSek}}
             </v-col>
           </v-row>
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
-
-
+{{mainSwitchColor0}} {{mainSwitchColor}}
         <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
         <v-btn @click="alert('Hello World')">Alert "Hello World"</v-btn>
 
@@ -166,7 +177,8 @@ export default {
         interval: 14,
         feedback: 'ud',
         auto: 'ud' 
-     }
+      },
+      mainSwitchColors: ['red', 'green', 'blue', 'grey']
     }
   },
 
@@ -185,6 +197,36 @@ export default {
     },
     autoColor() {
       return this.statusColors[this.status.auto]
+    },
+    showCountdown() {
+      return (this.status.timerSec >= 0)
+    },
+    secondsToTime() {
+      return `${String(Math.floor(this.status.timerSec / 3600)).padStart(2, '0')}:${String(Math.floor((this.status.timerSec % 3600) / 60)).padStart(2, '0')}:${String(this.status.timerSec%60).padStart(2, '0')}`
+    },
+    mainSwitchColor() {
+      return this.mainSwitchColors[this.status.mainSwitch]
+    },
+    mainSwitchColor0() {
+      if (this.status.mainSwitch == 0) {
+        return 'white'
+      } else {
+        return 'red'
+      }
+    },
+    mainSwitchColor1() {
+      if (this.status.mainSwitch == 1) {
+        return 'white'
+      } else {
+        return 'green'
+      }
+    },
+    mainSwitchColor2() {
+      if (this.status.mainSwitch == 2) {
+        return 'white'
+      } else {
+        return 'blue'
+      }
     },
     ...mapState('data', ['messages'])
   },

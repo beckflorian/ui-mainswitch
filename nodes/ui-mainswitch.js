@@ -62,10 +62,11 @@ module.exports = function (RED) {
           switch (status.mainSwitch) {
             case 0:
               mainswitchOut(false)
-              status.timerSec = 0 // reset Timer (potentially)
+              status.timerSec = -1 // reset Timer (potentially)
               break
             case 1:
               mainswitchOut(true)
+              status.timerSec = -1 // reset Timer (potentially)
               break
             case 2:
               if (status.auto == 'on') {
@@ -73,6 +74,7 @@ module.exports = function (RED) {
               } else {
                 mainswitchOut(false)
               }
+              status.timerSec = -1 // reset Timer (potentially)
               break
             case 3:
               mainswitchOut(true)
