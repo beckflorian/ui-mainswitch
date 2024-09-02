@@ -14,6 +14,8 @@ module.exports = function (RED) {
 
         var node = this
 
+        var events = {}
+
         var status = {
           mainSwitch: 0,
           interval: 14,
@@ -21,7 +23,8 @@ module.exports = function (RED) {
           auto: 'ud',
           feedback: 'ud',
           timerSec: -1,
-          switchToText: 'Off'
+          switchToText: 'Off',
+          events: []
         }
 
         if (config.switchTo == 2) { // check for default values
@@ -137,6 +140,11 @@ module.exports = function (RED) {
                     console.info('"downInterval" received:', conn.id, id, msg)
                     status.interval = msg.payload
                     status.intervalSecs = msg.secs
+                    updateStatus()
+                },
+                'downEvents': function (conn, id, msg) {
+                    console.info('"downEvents" received:', conn.id, id, msg)
+                    status.events = msg.payload
                     updateStatus()
                 },
                 'update-status': function (conn, id, msg) {

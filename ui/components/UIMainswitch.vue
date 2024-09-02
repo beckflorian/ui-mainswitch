@@ -94,6 +94,221 @@
               ></v-slider>{{timerSek}}
             </v-col>
           </v-row>
+          <v-row>
+            <v-data-table
+              :headers="tableHeaders"
+              :items="status.events"
+              :sort-by="[{ key: 'startTime', order: 'asc' }]"
+              density="compact"
+              :hide-default-footer="true"
+            >
+              <template v-slot:top>
+                <v-toolbar
+                  elevated
+                  density="compact"
+                  :color="colorScheme['bga']"
+                >
+                  <v-toolbar-title>Events</v-toolbar-title>
+                  <v-divider class="mx-4" inset vertical></v-divider>
+                  <v-spacer></v-spacer>
+                  <v-dialog max-width="500px" v-model="dialog">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        class="mb-2"
+                        color="green"
+                        v-bind="props"
+                        icon="mdi-plus"
+                      >
+                      </v-btn>
+                    </template>
+                    <v-card variant="flat">
+                      <v-card-title>
+                        <span class="text-h5">{{ formTitle }}</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col cols="4" md="4" sm="6">
+                              <v-text-field
+                                type="time"
+                                label="Startzeit"
+                                v-model="editedItem.startTime"
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col cols="2" md="4" sm="6">
+                              <v-text-field
+                                type="time"
+                                label="Dauer"
+                                v-model="editedItem.duration"
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col cols="2" md="4" sm="6">
+                              <v-switch
+                                label="Aktiv?"
+                                color="green"
+                                v-model="editedItem.active"
+                              >
+                              </v-switch>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-checkbox
+                              v-model="editedItem.day[1]"
+                              label="Mo"
+                              hide-details
+                              density="compact"
+                            ></v-checkbox>
+                            <v-checkbox
+                              v-model="editedItem.day[2]"
+                              label="Di"
+                              hide-details
+                            ></v-checkbox>
+                            <v-checkbox
+                              v-model="editedItem.day[3]"
+                              label="Mi"
+                              hide-details
+                            ></v-checkbox>
+                            <v-checkbox
+                              v-model="editedItem.day[4]"
+                              label="Do"
+                              hide-details
+                            ></v-checkbox>
+                            <v-checkbox
+                              v-model="editedItem.day[5]"
+                              label="Fr"
+                              hide-details
+                            ></v-checkbox>
+                            <v-checkbox
+                              v-model="editedItem.day[6]"
+                              label="Sa"
+                              hide-details
+                            ></v-checkbox>
+                            <v-checkbox
+                              v-model="editedItem.day[0]"
+                              label="So"
+                              hide-details
+                            ></v-checkbox>
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue-darken-1"
+                          variant="text"
+                          @click="close"
+                        >
+                          Abbrechen
+                        </v-btn>
+                        <v-btn
+                          color="blue-darken-1"
+                          variant="text"
+                          @click="save"
+                        >
+                          OK
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                  <v-dialog max-width="500px" v-model="dialogDelete">
+                    <v-card>
+                      <v-card-title class="text-h5"
+                        >Wollen Sie diese Ereignis wirklich
+                        löschen?</v-card-title
+                      >
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue-darken-1"
+                          variant="text"
+                          @click="closeDelete"
+                          >Abbrechen</v-btn
+                        >
+                        <v-btn
+                          color="blue-darken-1"
+                          @click="deleteItemConfirm"
+                          variant="text"
+                          >OK</v-btn
+                        >
+                        <v-spacer></v-spacer>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-toolbar>
+              </template>
+              <template v-slot:item.day.0="{ item }">
+                <v-checkbox-btn
+                  v-model="item.day[0]"
+                  density="compact"
+                  readonly
+                ></v-checkbox-btn>
+              </template>
+              <template v-slot:item.day.1="{ item }">
+                <v-checkbox-btn
+                  v-model="item.day[1]"
+                  density="compact"
+                  readonly
+                ></v-checkbox-btn>
+              </template>
+              <template v-slot:item.day.2="{ item }">
+                <v-checkbox-btn
+                  v-model="item.day[2]"
+                  density="compact"
+                  readonly
+                ></v-checkbox-btn>
+              </template>
+              <template v-slot:item.day.3="{ item }">
+                <v-checkbox-btn
+                  v-model="item.day[3]"
+                  density="compact"
+                  readonly
+                ></v-checkbox-btn>
+              </template>
+              <template v-slot:item.day.4="{ item }">
+                <v-checkbox-btn
+                  v-model="item.day[4]"
+                  density="compact"
+                  readonly
+                ></v-checkbox-btn>
+              </template>
+              <template v-slot:item.day.5="{ item }">
+                <v-checkbox-btn
+                  v-model="item.day[5]"
+                  density="compact"
+                  readonly
+                ></v-checkbox-btn>
+              </template>
+              <template v-slot:item.day.6="{ item }">
+                <v-checkbox-btn
+                  v-model="item.day[6]"
+                  density="compact"
+                  readonly
+                ></v-checkbox-btn>
+              </template>
+              <template v-slot:item.active="{ item }">
+                <v-chip
+                  :color="item.active ? 'green' : 'red'"
+                  :text="item.active ? 'Aktiv' : 'Inaktiv'"
+                  class="text-uppercase"
+                  size="small"
+                  label
+                ></v-chip>
+              </template>
+              <template v-slot:item.actions="{ item }">
+                <v-icon class="me-2" size="small" @click="editItem(item)">
+                  mdi-pencil-outline
+                </v-icon>
+                <v-icon size="small" @click="deleteItem(item)">
+                  mdi-delete-outline
+                </v-icon>
+              </template>
+              <template v-slot:no-data>
+                <v-btn color="primary" @click="initialize"> Reset </v-btn>
+              </template>
+            </v-data-table>
+          </v-row>
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -160,6 +375,35 @@ export default {
         off: 'light-blue-accent-3',
         ud: 'grey'
       },
+      dialog: false,
+      dialogDelete: false,
+      tableHeaders: [
+        { title: 'Start', value: 'startTime', key: 'startTime' },
+        { title: 'Dauer', value: 'duration' },
+        { title: 'Mo', value: 'day.1' },
+        { title: 'Di', value: 'day.2' },
+        { title: 'Mi', value: 'day.3' },
+        { title: 'Do', value: 'day.4' },
+        { title: 'Fr', value: 'day.5' },
+        { title: 'Sa', value: 'day.6' },
+        { title: 'So', value: 'day.0' },
+        { title: 'Aktiv', value: 'active' },
+        { title: 'Aktionen', value: 'actions', sortable: false },
+      ],
+      events: [],
+      editedIndex: -1,
+      editedItem: {
+        startTime: '',
+        duration: '',
+        active: true,
+        day: [true, true, true, true, true, true, true],
+      },
+      defaultItem: {
+        startTime: '',
+        duration: '',
+        active: true,
+        day: [true, true, true, true, true, true, true],
+      },
       colorScheme: {
         on: 'green',
         off: 'red',
@@ -175,6 +419,7 @@ export default {
       status: {
         mainSwitch: 0,
         interval: 14,
+        events: [],
         feedback: 'ud',
         auto: 'ud' 
       },
@@ -230,6 +475,14 @@ export default {
     },
     ...mapState('data', ['messages'])
   },
+    watch: {
+      dialog(val) {
+        val || this.close()
+      },
+      dialogDelete(val) {
+        val || this.closeDelete()
+      },
+    },
 
    mounted () {
         this.$socket.on('widget-load:' + this.id, (msg) => {
@@ -316,7 +569,53 @@ export default {
           console.info('downInterval: ' + { payload: this.status.intervall, secs: this.tickIntervals[this.status.interval]['secs'] })
           this.$socket.emit('downInterval', this.id, { payload: this.status.interval, secs: this.tickIntervals[this.status.interval]['secs'] })
         },
+        updateEvents(){
+          console.info('downEvents: ' + this.status.events )
+          this.$socket.emit('downEvents', this.id, {payload: this.status.events })
+        },
+      editItem(item) {
+        this.editedIndex = this.status.events.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialog = true
+      },
 
+      deleteItem(item) {
+        this.editedIndex = this.status.events.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialogDelete = true
+      },
+
+      deleteItemConfirm() {
+        this.status.events.splice(this.editedIndex, 1)
+        this.updateEvents()
+        this.closeDelete()
+      },
+
+      close() {
+        this.dialog = false
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        })
+      },
+
+      closeDelete() {
+        this.dialogDelete = false
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        })
+      },
+
+      save() {
+        if (this.editedIndex > -1) {
+          Object.assign(this.status.events[this.editedIndex], this.editedItem)
+        } else {
+          this.status.events.push(this.editedItem)
+        }
+        this.updateEvents()
+        this.close()
+      },
         test () {
             console.info('custom event handler:')
             this.$socket.emit('my-custom-event', this.id, {
