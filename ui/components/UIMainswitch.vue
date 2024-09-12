@@ -3,75 +3,92 @@
   <div className="ui-mainswitch-wrapper">
     <v-expansion-panels>
       <v-expansion-panel>
-        <v-expansion-panel-title class="pa-2">
-          <v-row no-gutters>
-            <v-col cols="auto">
+        <v-expansion-panel-title class="pa-2" :color="colorPicker('expansionPanelTitle')">
+          <v-row no-gutters align="center">
+            <v-col cols="auto" justify="start">
               <v-chip
                 class="ma-1 rounded"
-                :color="feedbackColor"
-                prepend-icon="mdi-hydro-power"
+                :color="colorPicker('feedback')"
+                :prepend-icon="props.feedbackIcon"
                 density="compact"
-                size="default"
+                elevation="2"
+                size="large"
                 variant="flat"
               >
                 {{props.switchLabel}}
               </v-chip>
             </v-col>
-            <v-col cols="auto" v-if="showCountdown">
+            <v-col cols="auto" justify="start" v-if="showCountdown">
               <v-chip
-                class="ma-3"
-                color="black"
+                class="ma-1 rounded"
+                :color="colorPicker('countdown')"
                 density="compact"
                 variant="flat"
-                size="small"
+                elevation="2"
+                size="default"
+                prepend-icon="mdi-timer-sand"
               >
-                {{secondsToTime}} bis {{status.switchToText}}
+                {{secondsToTime('countdownSec')}} bis {{status.switchToText}}
               </v-chip>
             </v-col>
             <v-spacer></v-spacer>
-            <v-col cols="auto">
+            <v-col cols="auto" justify="end">
               <v-chip
                 class="ma-1 rounded"
-                :color="autoColor"
+                :color="colorPicker('autoIn')"
                 prepend-icon="mdi-import"
                 density="compact"
+                :elevation="elevated('autoIn') ? 7 : 2"
                 variant="flat"
                 size="default"
+                v-if="props.topicAuto"
               >
                 {{props.autoLabel}}
+              </v-chip>
+              <v-chip
+                class="ma-1 rounded"
+                :color="colorPicker('timerIn')"
+                prepend-icon="mdi-timer-outline"
+                density="compact"
+                :elevation="elevated('timer') ? 7 : 2"
+                variant="elevated"
+                size="default"
+                v-if="status.timerRunning"
+              >
+                {{secondsToTime('timerNextEventSec')}}
               </v-chip>
             </v-col>
           </v-row>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <v-row>
+          <v-row align="center">
             <v-col cols="auto">
               <v-btn-toggle
                 v-model="status.mainSwitch"
                 @update:modelValue="updateMainswitch()"
-                class="pa-1"
+                class=""
                 mandatory
                 variant="flat"
                 divided
                 rounded="l"
                 size="small"
               >
-                <v-btn color="red">
-                  <v-icon :color="mainSwitchColor0"
+                <v-btn :color="mainSwitchColor(0)">
+                  <v-icon :color="mainSwitchColorX(0)"
                     >mdi-fan-off</v-icon
                   >
                 </v-btn>
-                <v-btn color="green">
-                  <v-icon :color="mainSwitchColor1"
+                <v-btn :color="mainSwitchColor(1)">
+                  <v-icon :color="mainSwitchColorX(1)"
                     >mdi-fan</v-icon
                   >
                 </v-btn>
-                <v-btn color="blue">
-                  <v-icon :color="mainSwitchColor2"
+                <v-btn :color="mainSwitchColor(2)">
+                  <v-icon :color="mainSwitchColor_2"
                     >mdi-fan-auto</v-icon
                   >
                 </v-btn>
-                <v-btn color="black"> {{ showInterval }} </v-btn>
+                <v-btn :color="mainSwitchColor(3)"> {{ showInterval }} </v-btn>
               </v-btn-toggle>
             </v-col>
             <v-spacer></v-spacer>
@@ -83,14 +100,15 @@
                 tick-size="1"
                 v-model="status.interval"
                 @update:modelValue="updateInterval()"
-                prepend-icon="mdi-clock-time-four"
+                prepend-icon="mdi-timer-sand"
                 min-width="20em"
                 max-width="40em"
                 density="compact"
                 thumb-size="10"
                 :readonly="readOnlySlider"
-                class="pa-2"
+                :color="colorPicker('slider')"
                 size="small"
+                hide-details
               ></v-slider>{{timerSek}}
             </v-col>
           </v-row>
@@ -101,21 +119,25 @@
               :sort-by="[{ key: 'startTime', order: 'asc' }]"
               density="compact"
               :hide-default-footer="true"
+              md="4"
             >
               <template v-slot:top>
                 <v-toolbar
                   elevated
                   density="compact"
-                  :color="colorScheme['bga']"
+                  :color="colorPicker('eventToolbar')"
                 >
-                  <v-toolbar-title>Events</v-toolbar-title>
+                  <v-toolbar-title>
+                    <v-icon size="x-small">mdi-timer-outline</v-icon>
+                    Events
+                  </v-toolbar-title>
                   <v-divider class="mx-4" inset vertical></v-divider>
                   <v-spacer></v-spacer>
                   <v-dialog max-width="500px" v-model="dialog">
                     <template v-slot:activator="{ props }">
                       <v-btn
                         class="mb-2"
-                        color="green"
+                        :color="colorPicker('plus')"
                         v-bind="props"
                         icon="mdi-plus"
                       >
@@ -128,19 +150,21 @@
                       <v-card-text>
                         <v-container>
                           <v-row>
-                            <v-col cols="4" md="4" sm="6">
+                            <v-col cols="4" ma="2" pa="2" sm="6">
                               <v-text-field
                                 type="time"
                                 label="Startzeit"
                                 v-model="editedItem.startTime"
+                                :messages="startTimeErrorMessage"
                               >
                               </v-text-field>
                             </v-col>
-                            <v-col cols="2" md="4" sm="6">
+                            <v-col cols="2" ma="2" pa="2" sm="6">
                               <v-text-field
                                 type="time"
                                 label="Dauer"
                                 v-model="editedItem.duration"
+                                :messages="durationErrorMessage"
                               >
                               </v-text-field>
                             </v-col>
@@ -312,7 +336,9 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
-{{mainSwitchColor0}} {{mainSwitchColor}}
+          {{startTimeErrorMessage}}{{durationErrorMessage}}
+
+{{colorPicker('countdown')}} {{mainSwitchColor_2}}
         <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
         <v-btn @click="alert('Hello World')">Alert "Hello World"</v-btn>
 
@@ -364,7 +390,27 @@ export default {
         { label: 'Spacing', url: 'https://vuetifyjs.com/en/styles/spacing/#how-it-works' },
         { label: 'Text & Typography', url: 'https://vuetifyjs.com/en/styles/text-and-typography/#typography' }
       ],
+      startTimeErrorMessage: "",
+      durationErrorMessage:"",
       tickIntervals: [ { secs: 4, text: "4\"" }, { secs: 7, text: "7\"" }, { secs: 10, text: "10\"" }, { secs: 15, text: "15\"" }, { secs: 20, text: "20\"" }, { secs: 30, text: "30\"" }, { secs: 40, text: "40\"" }, { secs: 50, text: "50\"" }, { secs: 60, text: "1'" }, { secs: 120, text: "2'" }, { secs: 240, text: "4'" }, { secs: 420, text: "7'" }, { secs: 600, text: "10'" }, { secs: 900, text: "15'" }, { secs: 1200, text: "20'" }, { secs: 1800, text: "30'" }, { secs: 2400, text: "40'" }, { secs: 3000, text: "50'" }, { secs: 3600, text: "60'" }, { secs: 5400, text: "90'" }, { secs: 7200, text: '2h' }, { secs: 14400, text: '4h' }, { secs: 21600, text: '6h' }, { secs: 28800, text: '8h' }, { secs: 43200, text: '12h' }, { secs: 64800, text: '18h' }, { secs: 86400, text: '24h' }, { secs: 172800, text: '48h' }, ],
+      colors: {
+        expansionPanelTitle: 'pink',
+        mainSwitch: ['red-darken-1', 'green-darken-1', 'blue-darken-1', 'black', 'white'],
+        mainSwitchAuto: {
+          false: {false: 'red-darken-1', true: 'green-darken-1', null: 'grey-darken-1'}, 
+          true: {false: 'red-lighten-3', true: 'green-lighten-3', null: 'grey-lighten-2'}
+        },
+        inhibition: ['brown-lighten-3', 'purple', 'grey'],
+        inhibitionToolbar: 'blue-lighten-3',
+        measurements: ['light-blue-lighten-3'],
+        autoIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-2'},
+        timerIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-2'},
+        feedback: {false: 'red-darken-1', true: 'green-darken-1', null: 'grey-darken-1'},
+        countdown: 'deep-purple',
+        eventToolbar: 'amber',
+        slider: 'amber',
+        plus: 'red',
+     },
       actionColors : {
         on: 'green',
         off: 'red',
@@ -443,37 +489,13 @@ export default {
     autoColor() {
       return this.statusColors[this.status.auto]
     },
+    mainSwitchColor_2() {
+      return this.colors.mainSwitchAuto[(this.status.mainSwitch == 2)][this.status.auto]
+    },
     showCountdown() {
-      return (this.status.timerSec >= 0)
+      return (this.status.countdownSec >= 0)
     },
-    secondsToTime() {
-      return `${String(Math.floor(this.status.timerSec / 3600)).padStart(2, '0')}:${String(Math.floor((this.status.timerSec % 3600) / 60)).padStart(2, '0')}:${String(this.status.timerSec%60).padStart(2, '0')}`
-    },
-    mainSwitchColor() {
-      return this.mainSwitchColors[this.status.mainSwitch]
-    },
-    mainSwitchColor0() {
-      if (this.status.mainSwitch == 0) {
-        return 'white'
-      } else {
-        return 'red'
-      }
-    },
-    mainSwitchColor1() {
-      if (this.status.mainSwitch == 1) {
-        return 'white'
-      } else {
-        return 'green'
-      }
-    },
-    mainSwitchColor2() {
-      if (this.status.mainSwitch == 2) {
-        return 'white'
-      } else {
-        return 'blue'
-      }
-    },
-    ...mapState('data', ['messages'])
+  ...mapState('data', ['messages'])
   },
     watch: {
       dialog(val) {
@@ -554,6 +576,32 @@ export default {
         alert (text) {
             alert(text)
         },
+      mainSwitchColor(key) {
+        return this.colors.mainSwitch[key]
+      },
+      mainSwitchColorX(key) {
+        if (this.status.mainSwitch == key) {
+          return this.colors.mainSwitch[4]
+        } else {
+          return this.colors.mainSwitch[key]
+        }
+      },
+      elevated(item) {
+        return (item == this.status.lastSetter)
+      },
+      secondsToTime(key) {
+        console.log(this.status[key])
+        var sec = 0
+        if (this.status[key] > 0) sec = this.status[key]
+        return `${String(Math.floor(sec / 3600)).padStart(2, '0')}:${String(Math.floor((sec % 3600) / 60)).padStart(2, '0')}:${String(sec%60).padStart(2, '0')}`
+      },
+      colorPicker(key) {
+        if (key in this.status) {
+          return this.colors[key][this.status[key]] //dynamic
+        } else {
+          return this.colors[key] //static
+        }
+      },
         tester () {
           alert(this.mainswitch)
         },
@@ -608,13 +656,23 @@ export default {
       },
 
       save() {
-        if (this.editedIndex > -1) {
-          Object.assign(this.status.events[this.editedIndex], this.editedItem)
+        if (!this.editedItem.startTime) {
+          this.startTimeErrorMessage = 'Sie müssen eine Zeit eingeben.'
+          this.durationErrorMessage = ''
+        } else if (!this.editedItem.duration) {
+          this.durationErrorMessage = 'Sie müssen eine Zeit eingeben.'
+          this.startTimeErrorMessage = ''
         } else {
-          this.status.events.push(this.editedItem)
-        }
-        this.updateEvents()
-        this.close()
+          this.startTimeErrorMessage = ''
+          this.durationErrorMessage = ''
+          if (this.editedIndex > -1) {
+            Object.assign(this.status.events[this.editedIndex], this.editedItem)
+          } else {
+            this.status.events.push(this.editedItem)
+          }
+          this.updateEvents()
+          this.close()
+        } 
       },
         test () {
             console.info('custom event handler:')
@@ -629,4 +687,9 @@ export default {
 <style scoped>
 /* CSS is auto scoped, but using named classes is still recommended */
 @import "../stylesheets/ui-mainswitch.css";
+
+.v-expansion-panel-text {
+  background-color: #F0F0F0;
+}
+
 </style>
