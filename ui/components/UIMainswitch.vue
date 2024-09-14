@@ -313,7 +313,7 @@
               </template>
               <template v-slot:item.active="{ item }">
                 <v-chip
-                  :color="item.active ? 'green' : 'red'"
+                  :color="item.active ? colorPicker('activeActive') : colorPicker('activeInactive')"
                   :text="item.active ? 'Aktiv' : 'Inaktiv'"
                   class="text-uppercase"
                   size="small"
@@ -410,6 +410,8 @@ export default {
         eventToolbar: 'amber',
         slider: 'amber',
         plus: 'red',
+        activeActive: 'green',
+        activeInactive: 'red',
      },
       actionColors : {
         on: 'green',

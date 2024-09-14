@@ -34,6 +34,47 @@ module.exports = function (RED) {
     var node = this
     var context = this.context()
     var timerNextEvent = {}
+    var lastMainSwitch = 0
+
+    const BOOL_INPUT_PARSER = {
+      true: INPUT_ON,
+      false: INPUT_OFF,
+      'true': INPUT_ON,
+      'false': INPUT_OFF,
+      'TRUE': INPUT_ON,
+      'FALSE': INPUT_OFF,
+      0: INPUT_OFF,
+      1: INPUT_ON,
+      'On': INPUT_ON,
+      'Off': INPUT_OFF,
+      'on': INPUT_ON,
+      'off': INPUT_OFF,
+      'ON': INPUT_ON,
+      'OFF': INPUT_OFF,
+      null: INPUT_UNDEF,
+      'null': INPUT_UNDEF,
+      'NULL': INPUT_UNDEF
+    }
+
+    const MAIN_INPUT_PARSER = {
+      0: 0,
+      1: 1,
+      2: 2,
+      3: 3,
+      'OFF': 0,
+      'Off': 0,
+      'off': 0,
+      'ON': 1,
+      'On': 1,
+      'on': 1,
+      'AUTO': 2,
+      'Auto': 2,
+      'auto': 2,
+      'COUNTDOWN': 3,
+      'Countdown': 3,
+      'countdown': 3
+    }
+
     var status = {
       mainSwitch: 0,
       interval: 14,
@@ -109,8 +150,7 @@ module.exports = function (RED) {
       var now = new Date()
       if (sta.countdownSec >= 0) { // Countdown active?
         if (sta.countdownSec == 0) { // Countdown run down?
-          status.mainSwitch = switchTo // set to default
-          //updateStatus()
+          status.mainSwitch = lastMainSwitch // set to last state bfore countdown
           stateMachine()
         }
         status.countdownSec = sta.countdownSec - 1
@@ -142,6 +182,22 @@ module.exports = function (RED) {
 
     function updateEvents() {
       timerNextEvent = nextTakePlace(status.events)
+    }
+
+    function setMainSwitch(input) {
+      if (input == 3 && status.interval !== undefined){
+        status.countdownSec = status.intervalSecs
+        if (status.mainSwitch == 2) {
+          lastMainSwitch = 2
+          status.switchToText = 'Auto'
+        } else {
+          lastMainSwitch = 0
+          status.switchToText = 'Off'
+        }
+      }
+      status.mainSwitch = input
+      updateStatus()
+      stateMachine()
     }
 
     function mainswitchOut(out) {
@@ -184,43 +240,25 @@ module.exports = function (RED) {
     }
 
     function parseBool(input) {
-      const INPUT_PARSER = {
-        true: INPUT_ON,
-        false: INPUT_OFF,
-        'true': INPUT_ON,
-        'false': INPUT_OFF,
-        'TRUE': INPUT_ON,
-        'FALSE': INPUT_OFF,
-        0: INPUT_OFF,
-        1: INPUT_ON,
-        'On': INPUT_ON,
-        'Off': INPUT_OFF,
-        'on': INPUT_ON,
-        'off': INPUT_OFF,
-        'ON': INPUT_ON,
-        'OFF': INPUT_OFF,
-        null: INPUT_UNDEF,
-        'null': INPUT_UNDEF,
-        'NULL': INPUT_UNDEF
-      }
-      if (input in INPUT_PARSER) {
-        return INPUT_PARSER[input]
+      if (input in BOOL_INPUT_PARSER) {
+        return BOOL_INPUT_PARSER[input]
       } else {
         return INPUT_NOT_SET
       }
     }
 
+
     status.events = context.get('events') || []
     updateEvents()
 
-    if (config.switchTo == 2) { // check for default values
+/*    if (config.switchTo == 2) { // check for default values
        var switchTo = 2
        status.switchToText = 'Auto'
     } else {
        var switchTo = 0
        status.switchToText = 'Off'
     }
-
+*/
 
 
     // server-side event handlers
@@ -229,8 +267,9 @@ module.exports = function (RED) {
       onInput: function (msg, send, done) {
         console.info(msg)
         if (msg.topic == "") {
-          //status.feedback = parseBool(msg.payload)
-          //updateStatus()
+          if (msg.payload in MAIN_INPUT_PARSER) {
+            setMainSwitch(MAIN_INPUT_PARSER[msg.payload])
+          }
         }
         if (node.topicFeedback != "" && msg.topic == node.topicFeedback) {
           status.feedback = parseBool(msg.payload)
@@ -247,12 +286,7 @@ module.exports = function (RED) {
       onSocket: {
         'downMainswitch': function (conn, id, msg) {
           console.info('"downMainswitch" received:', conn.id, id, msg)
-          if (msg.payload == 3 && status.interval !== undefined){
-            status.countdownSec = status.intervalSecs
-          }
-          status.mainSwitch = msg.payload
-          updateStatus()
-          stateMachine()
+          setMainSwitch(msg.payload)
         },
         'downInterval': function (conn, id, msg) {
           console.info('"downInterval" received:', conn.id, id, msg)
