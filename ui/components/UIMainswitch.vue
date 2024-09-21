@@ -94,7 +94,7 @@
             <v-spacer></v-spacer>
             <v-col>
               <v-slider
-                max="27"
+                :max="maxInterval"
                 show-ticks
                 step="1"
                 tick-size="1"
@@ -336,7 +336,7 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
-          {{startTimeErrorMessage}}{{durationErrorMessage}}
+          {{startTimeErrorMessage}}{{maxInterval}}
 
 {{colorPicker('countdown')}} {{mainSwitchColor_2}}
         <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
@@ -392,8 +392,7 @@ export default {
       ],
       startTimeErrorMessage: "",
       durationErrorMessage:"",
-      tickIntervals: [ { secs: 4, text: "4\"" }, { secs: 7, text: "7\"" }, { secs: 10, text: "10\"" }, { secs: 15, text: "15\"" }, { secs: 20, text: "20\"" }, { secs: 30, text: "30\"" }, { secs: 40, text: "40\"" }, { secs: 50, text: "50\"" }, { secs: 60, text: "1'" }, { secs: 120, text: "2'" }, { secs: 240, text: "4'" }, { secs: 420, text: "7'" }, { secs: 600, text: "10'" }, { secs: 900, text: "15'" }, { secs: 1200, text: "20'" }, { secs: 1800, text: "30'" }, { secs: 2400, text: "40'" }, { secs: 3000, text: "50'" }, { secs: 3600, text: "60'" }, { secs: 5400, text: "90'" }, { secs: 7200, text: '2h' }, { secs: 14400, text: '4h' }, { secs: 21600, text: '6h' }, { secs: 28800, text: '8h' }, { secs: 43200, text: '12h' }, { secs: 64800, text: '18h' }, { secs: 86400, text: '24h' }, { secs: 172800, text: '48h' }, ],
-      colors: {
+/*      colors: {
         expansionPanelTitle: 'pink',
         mainSwitch: ['red-darken-1', 'green-darken-1', 'blue-darken-1', 'black', 'white'],
         mainSwitchAuto: {
@@ -413,6 +412,7 @@ export default {
         activeActive: 'green',
         activeInactive: 'red',
      },
+*/
       actionColors : {
         on: 'green',
         off: 'red',
@@ -476,11 +476,14 @@ export default {
   },
 
   computed: {
+    maxInterval () {
+      return this.props.tickInterval.length - 1
+    },
     titleCase () {
       return toTitleCase(this.input.title)
     },
     showInterval() {
-      return this.tickIntervals[this.status.interval]['text']
+      return this.props.tickInterval[this.status.interval]['text']
     },
     readOnlySlider() {
       return (this.status.mainSwitch == 3)
@@ -492,7 +495,7 @@ export default {
       return this.statusColors[this.status.auto]
     },
     mainSwitchColor_2() {
-      return this.colors.mainSwitchAuto[(this.status.mainSwitch == 2)][this.status.auto]
+      return this.props.colors.mainSwitchAuto[(this.status.mainSwitch == 2)][this.status.auto]
     },
     showCountdown() {
       return (this.status.countdownSec >= 0)
@@ -579,13 +582,13 @@ export default {
             alert(text)
         },
       mainSwitchColor(key) {
-        return this.colors.mainSwitch[key]
+        return this.props.colors.mainSwitch[key]
       },
       mainSwitchColorX(key) {
         if (this.status.mainSwitch == key) {
-          return this.colors.mainSwitch[4]
+          return this.props.colors.mainSwitch[4]
         } else {
-          return this.colors.mainSwitch[key]
+          return this.props.colors.mainSwitch[key]
         }
       },
       elevated(item) {
@@ -599,9 +602,9 @@ export default {
       },
       colorPicker(key) {
         if (key in this.status) {
-          return this.colors[key][this.status[key]] //dynamic
+          return this.props.colors[key][this.status[key]] //dynamic
         } else {
-          return this.colors[key] //static
+          return this.props.colors[key] //static
         }
       },
         tester () {
@@ -616,8 +619,8 @@ export default {
           this.$socket.emit('downMainswitch', this.id, { payload: this.status.mainSwitch })
         },
         updateInterval(){
-          console.info('downInterval: ' + { payload: this.status.intervall, secs: this.tickIntervals[this.status.interval]['secs'] })
-          this.$socket.emit('downInterval', this.id, { payload: this.status.interval, secs: this.tickIntervals[this.status.interval]['secs'] })
+          console.info('downInterval: ' + { payload: this.status.intervall, secs: this.props.tickInterval[this.status.interval]['secs'] })
+          this.$socket.emit('downInterval', this.id, { payload: this.status.interval, secs: this.props.tickInterval[this.status.interval]['secs'] })
         },
         updateEvents(){
           console.info('downEvents: ' + this.status.events )

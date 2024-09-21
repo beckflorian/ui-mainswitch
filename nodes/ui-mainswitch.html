@@ -13,6 +13,7 @@
             autoLabel: { value: "" },
             topicAuto: { value: "" },
             switchTo: {value: 0 },
+            colorsCustom: {value: "" },
             width: {
                 value: 0,
                 validate: function (v) {
@@ -48,6 +49,10 @@
                   ]
                 }
               ]
+            });
+            $("#node-input-colorsCustom").typedInput({
+                type:"json",
+                types:["json"]
             });
         }
     });
@@ -95,5 +100,9 @@
     <div class="form-row">
         <label for="node-input-switchTo"><i class="fa fa-hand"></i> Switch To</label>
         <input type="text" id="node-input-switchTo">
+    </div>
+    <div class="form-row">
+        <label for="node-input-colorsCustom"><i class="fa fa-hand"></i> Custom Colors</label>
+        <input type="text" id="node-input-colorsCustom">
     </div>
 </script>
