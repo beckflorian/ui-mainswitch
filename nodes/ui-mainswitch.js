@@ -193,11 +193,12 @@ module.exports = function (RED) {
 
         // to be executed every second: countdown running? event occurring?
         function ticker (sta) {
+            // console.log(node.id)
             var now = new Date();
-
+            // console.log(now)
             // countdown
             if (sta.countdownSec >= 0) { // active?
-                if (sta.countdownSec == 0) { // Countdown run down?
+                if (sta.countdownSec === 0) { // Countdown run down?
                     node.status.mainSwitch = node.lastMainSwitch; // set to last state before countdown
                     stateMachine();
                 }
@@ -288,11 +289,11 @@ module.exports = function (RED) {
                 case 1:
                     mainswitchOut(OUT_ON);
                     node.status.countdownSec = -1; // reset Coundown (potentially)
-                    break;
+                   break;
                 case 2:
                     if (node.status.auto === AUTO_ON) {
                         mainswitchOut(OUT_ON);
-                    } else {
+                   } else {
                         mainswitchOut(OUT_OFF);
                     }
                     node.status.countdownSec = -1; // reset Countdown (potentially)
@@ -473,12 +474,15 @@ module.exports = function (RED) {
         updateEvents();
 
         // run ticker every second
-        var tick = setInterval(ticker, 1000, node.status);
-        var tickID = tick[Symbol.toPrimitive]();
-
+        const tick = setInterval(ticker, 1000, node.status);
+ 
         // kill the ticker
         node.on("close", function () {
-            if (tick) { clearIntervall(tickID); }
+            console.log("onClose")
+            if (tick) { 
+                console.log("onClear")
+                clearInterval(tick); }
+            done()
         });
 
         // inform the dashboard UI that we are adding this node
