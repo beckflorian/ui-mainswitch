@@ -318,7 +318,6 @@ module.exports = function (RED) {
 
         // merge the default setting objects with the config from html
         function objectMerger(source, coloring) {
-            console.log(source, coloring);
             // is the current layer an object/array or not?
             if (typeof(source) == 'object') {
                 // ist the current layer an object or array?
@@ -428,15 +427,8 @@ module.exports = function (RED) {
                     // console.info('"update-status" received:', conn.id, id)
                     updateStatus() // to widget
                 }
-            },
-
-            onClose: function () {
-                node.log('onClose');
-                if (node.tick) { clearIntervall(node.tick); }
-                    console.log(node.tick);
-                    done();
-                }
             }
+        }
 
 
         // get config from html and prepare the node
