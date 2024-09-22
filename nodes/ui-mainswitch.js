@@ -128,6 +128,32 @@ module.exports = function (RED) {
         };
 
 
+        const LANGUAGE = {
+            measurements: 'Measurements',
+            inhibition: 'Inhibition',
+            events: 'Events',
+            start: 'Start',
+            duration: 'Duration',
+            day0: 'Su',
+            day1: 'Mo',
+            day2: 'Tu',
+            day3: 'We',
+            day4: 'Th',
+            day5: 'Fr',
+            day6: 'Sa',
+            active: 'Active?',
+            actions: 'Actions',
+            until: 'until',
+            dayLabels: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+            dayOrder: [0, 1, 2, 3, 4, 5, 6],
+            newEvent: 'New Event',
+            editEvent: 'Edit Event',
+            cancel: 'Cancel',
+            ok: 'OK',
+            deleteConfirm: 'Do you really want to delete this event?'
+        };
+
+
         // helper function for calculating, on what weekday and what time an event occurs
         function checkWeekdays(days, now, weekday, day, hours, minutes, state) {
             var dates = []; // one item per day
@@ -460,8 +486,7 @@ module.exports = function (RED) {
         // extend config for the widget
         config.tickInterval = TICK_INTERVAL;
         config.colors = objectMerger(COLORS, JSON.parse(config.colorsCustom));
-//        console.log(JSON.stringify(COLORS))
-
+        config.language = LANGUAGE;
 
         // get context store
         var context = this.context();

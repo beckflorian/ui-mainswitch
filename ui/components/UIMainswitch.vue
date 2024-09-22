@@ -129,7 +129,7 @@
                 >
                   <v-toolbar-title>
                     <v-icon size="x-small">mdi-timer-outline</v-icon>
-                    Events
+                    {{this.props.language.events}}
                   </v-toolbar-title>
                   <v-divider class="mx-4" inset vertical></v-divider>
                   <v-spacer></v-spacer>
@@ -153,7 +153,7 @@
                             <v-col cols="4" ma="2" pa="2" sm="6">
                               <v-text-field
                                 type="time"
-                                label="Startzeit"
+                                :label="this.props.language.start"
                                 v-model="editedItem.startTime"
                                 :messages="startTimeErrorMessage"
                               >
@@ -162,7 +162,7 @@
                             <v-col cols="2" ma="2" pa="2" sm="6">
                               <v-text-field
                                 type="time"
-                                label="Dauer"
+                                :label="this.props.language.duration"
                                 v-model="editedItem.duration"
                                 :messages="durationErrorMessage"
                               >
@@ -170,7 +170,7 @@
                             </v-col>
                             <v-col cols="2" md="4" sm="6">
                               <v-switch
-                                label="Aktiv?"
+                                :label="this.props.language.active"
                                 color="green"
                                 v-model="editedItem.active"
                               >
@@ -179,39 +179,9 @@
                           </v-row>
                           <v-row>
                             <v-checkbox
-                              v-model="editedItem.day[1]"
-                              label="Mo"
-                              hide-details
-                              density="compact"
-                            ></v-checkbox>
-                            <v-checkbox
-                              v-model="editedItem.day[2]"
-                              label="Di"
-                              hide-details
-                            ></v-checkbox>
-                            <v-checkbox
-                              v-model="editedItem.day[3]"
-                              label="Mi"
-                              hide-details
-                            ></v-checkbox>
-                            <v-checkbox
-                              v-model="editedItem.day[4]"
-                              label="Do"
-                              hide-details
-                            ></v-checkbox>
-                            <v-checkbox
-                              v-model="editedItem.day[5]"
-                              label="Fr"
-                              hide-details
-                            ></v-checkbox>
-                            <v-checkbox
-                              v-model="editedItem.day[6]"
-                              label="Sa"
-                              hide-details
-                            ></v-checkbox>
-                            <v-checkbox
-                              v-model="editedItem.day[0]"
-                              label="So"
+                              v-for="i in this.props.language.dayOrder"
+                              v-model="editedItem.day[i]"
+                              :label="this.props.language.dayLabels[i]"
                               hide-details
                             ></v-checkbox>
                           </v-row>
@@ -224,14 +194,14 @@
                           variant="text"
                           @click="close"
                         >
-                          Abbrechen
+                          {{this.props.language.cancel}}
                         </v-btn>
                         <v-btn
                           color="blue-darken-1"
                           variant="text"
                           @click="save"
                         >
-                          OK
+                          {{this.props.language.ok}}
                         </v-btn>
                       </v-card-actions>
                     </v-card>
@@ -239,22 +209,21 @@
                   <v-dialog max-width="500px" v-model="dialogDelete">
                     <v-card>
                       <v-card-title class="text-h5"
-                        >Wollen Sie diese Ereignis wirklich
-                        löschen?</v-card-title
-                      >
+                        >{{this.props.language.deleteConfirm}}
+                      </v-card-title>
                       <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn
                           color="blue-darken-1"
                           variant="text"
                           @click="closeDelete"
-                          >Abbrechen</v-btn
+                          >{{this.props.language.cancel}}</v-btn
                         >
                         <v-btn
                           color="blue-darken-1"
                           @click="deleteItemConfirm"
                           variant="text"
-                          >OK</v-btn
+                          >{{this.props.language.ok}}</v-btn
                         >
                         <v-spacer></v-spacer>
                       </v-card-actions>
@@ -336,7 +305,7 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
-          {{startTimeErrorMessage}}{{maxInterval}}
+          {{dayLabels}}{{maxInterval}}
 
 {{colorPicker('countdown')}} {{mainSwitchColor_2}}
         <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
@@ -392,28 +361,7 @@ export default {
       ],
       startTimeErrorMessage: "",
       durationErrorMessage:"",
-/*      colors: {
-        expansionPanelTitle: 'pink',
-        mainSwitch: ['red-darken-1', 'green-darken-1', 'blue-darken-1', 'black', 'white'],
-        mainSwitchAuto: {
-          false: {false: 'red-darken-1', true: 'green-darken-1', null: 'grey-darken-1'}, 
-          true: {false: 'red-lighten-3', true: 'green-lighten-3', null: 'grey-lighten-2'}
-        },
-        inhibition: ['brown-lighten-3', 'purple', 'grey'],
-        inhibitionToolbar: 'blue-lighten-3',
-        measurements: ['light-blue-lighten-3'],
-        autoIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-2'},
-        timerIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-2'},
-        feedback: {false: 'red-darken-1', true: 'green-darken-1', null: 'grey-darken-1'},
-        countdown: 'deep-purple',
-        eventToolbar: 'amber',
-        slider: 'amber',
-        plus: 'red',
-        activeActive: 'green',
-        activeInactive: 'red',
-     },
-*/
-      actionColors : {
+       actionColors : {
         on: 'green',
         off: 'red',
         ud: 'grey'
@@ -479,6 +427,11 @@ export default {
     maxInterval () {
       return this.props.tickInterval.length - 1
     },
+      formTitle() {
+        return this.editedIndex === -1
+          ? this.props.language.newEvent
+          : this.props.language.editEvent
+      },
     titleCase () {
       return toTitleCase(this.input.title)
     },
