@@ -1,3 +1,5 @@
+// seperate downstreams
+
 module.exports = function (RED) {
     function UIMainswitchNode (config) {
         RED.nodes.createNode(this, config);
@@ -134,16 +136,13 @@ module.exports = function (RED) {
             events: 'Events',
             start: 'Start',
             duration: 'Duration',
-            day0: 'Su',
-            day1: 'Mo',
-            day2: 'Tu',
-            day3: 'We',
-            day4: 'Th',
-            day5: 'Fr',
-            day6: 'Sa',
-            active: 'Active?',
             actions: 'Actions',
+            active: 'active',
+            inactive: 'inactive',
+            activeLabel: 'Active?',
             until: 'until',
+            off: 'Off',
+            auto: 'Auto',
             dayLabels: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
             dayOrder: [0, 1, 2, 3, 4, 5, 6],
             newEvent: 'New Event',
@@ -276,10 +275,10 @@ module.exports = function (RED) {
                 // preserv mainSwitch status for the next change from auto to ?
                 if (node.status.mainSwitch == 2) {
                     node.lastMainSwitch = 2; 
-                    node.status.switchToText = 'Auto';
+                    node.status.switchToText = LANGUAGE.auto;
                 } else {
                     node.lastMainSwitch = 0;
-                    node.status.switchToText = 'Off';
+                    node.status.switchToText = LANGUAGE.off;
                 }
             }
 
@@ -486,7 +485,7 @@ module.exports = function (RED) {
         // extend config for the widget
         config.tickInterval = TICK_INTERVAL;
         config.colors = objectMerger(COLORS, JSON.parse(config.colorsCustom));
-        config.language = LANGUAGE;
+        config.language = objectMerger(LANGUAGE, JSON.parse(config.languageCustom));
 
         // get context store
         var context = this.context();

@@ -1,3 +1,7 @@
+<!--
+Reset button
+Code Cleanup
+-->
 <template>
   <!-- Component must be wrapped in a block so props such as className and style can be passed in from parent -->
   <div className="ui-mainswitch-wrapper">
@@ -28,7 +32,7 @@
                 size="default"
                 prepend-icon="mdi-timer-sand"
               >
-                {{secondsToTime('countdownSec')}} bis {{status.switchToText}}
+                {{secondsToTime('countdownSec')}} {{this.props.language.until}} {{status.switchToText}}
               </v-chip>
             </v-col>
             <v-spacer></v-spacer>
@@ -170,7 +174,7 @@
                             </v-col>
                             <v-col cols="2" md="4" sm="6">
                               <v-switch
-                                :label="this.props.language.active"
+                                :label="this.props.language.activeLabel"
                                 color="green"
                                 v-model="editedItem.active"
                               >
@@ -231,51 +235,11 @@
                   </v-dialog>
                 </v-toolbar>
               </template>
-              <template v-slot:item.day.0="{ item }">
+              <template
+                v-for="i in this.props.language.dayOrder" 
+                v-slot:[`item.day.${i}`]="{ item }">
                 <v-checkbox-btn
-                  v-model="item.day[0]"
-                  density="compact"
-                  readonly
-                ></v-checkbox-btn>
-              </template>
-              <template v-slot:item.day.1="{ item }">
-                <v-checkbox-btn
-                  v-model="item.day[1]"
-                  density="compact"
-                  readonly
-                ></v-checkbox-btn>
-              </template>
-              <template v-slot:item.day.2="{ item }">
-                <v-checkbox-btn
-                  v-model="item.day[2]"
-                  density="compact"
-                  readonly
-                ></v-checkbox-btn>
-              </template>
-              <template v-slot:item.day.3="{ item }">
-                <v-checkbox-btn
-                  v-model="item.day[3]"
-                  density="compact"
-                  readonly
-                ></v-checkbox-btn>
-              </template>
-              <template v-slot:item.day.4="{ item }">
-                <v-checkbox-btn
-                  v-model="item.day[4]"
-                  density="compact"
-                  readonly
-                ></v-checkbox-btn>
-              </template>
-              <template v-slot:item.day.5="{ item }">
-                <v-checkbox-btn
-                  v-model="item.day[5]"
-                  density="compact"
-                  readonly
-                ></v-checkbox-btn>
-              </template>
-              <template v-slot:item.day.6="{ item }">
-                <v-checkbox-btn
-                  v-model="item.day[6]"
+                  v-model="item.day[i]"
                   density="compact"
                   readonly
                 ></v-checkbox-btn>
@@ -283,7 +247,7 @@
               <template v-slot:item.active="{ item }">
                 <v-chip
                   :color="item.active ? colorPicker('activeActive') : colorPicker('activeInactive')"
-                  :text="item.active ? 'Aktiv' : 'Inaktiv'"
+                  :text="item.active ? this.props.language.active : this.props.language.inactive"
                   class="text-uppercase"
                   size="small"
                   label
@@ -305,7 +269,9 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
-          {{dayLabels}}{{maxInterval}}
+
+<!--
+          {{tableHeaders}}{{maxInterval}}
 
 {{colorPicker('countdown')}} {{mainSwitchColor_2}}
         <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
@@ -327,7 +293,7 @@
         </p>
         <pre>{{ state }}</pre>
 
-    </div>
+-->    </div>
 </template>
 
 <script>
@@ -373,19 +339,6 @@ export default {
       },
       dialog: false,
       dialogDelete: false,
-      tableHeaders: [
-        { title: 'Start', value: 'startTime', key: 'startTime' },
-        { title: 'Dauer', value: 'duration' },
-        { title: 'Mo', value: 'day.1' },
-        { title: 'Di', value: 'day.2' },
-        { title: 'Mi', value: 'day.3' },
-        { title: 'Do', value: 'day.4' },
-        { title: 'Fr', value: 'day.5' },
-        { title: 'Sa', value: 'day.6' },
-        { title: 'So', value: 'day.0' },
-        { title: 'Aktiv', value: 'active' },
-        { title: 'Aktionen', value: 'actions', sortable: false },
-      ],
       events: [],
       editedIndex: -1,
       editedItem: {
@@ -423,7 +376,26 @@ export default {
     }
   },
 
-  computed: {
+    computed: {
+        tableHeaders () {
+            const headers = [
+                { title: this.props.language.start, value: 'startTime', key: 'startTime' },
+                { title: this.props.language.duration, value: 'duration' }
+            ];
+            this.props.language.dayOrder.forEach((e) => {
+                headers.push(
+                    {
+                        title: this.props.language.dayLabels[e], 
+                        value: 'day.' + e
+                    }
+                );
+            });
+            headers.push(
+                { title: this.props.language.activeLabel, value: 'active' },
+                { title: this.props.language.actions, value: 'actions', sortable: false }
+            );
+            return headers;
+        },
     maxInterval () {
       return this.props.tickInterval.length - 1
     },

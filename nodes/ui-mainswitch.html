@@ -1,3 +1,8 @@
+<!--
+init colors, language
+sort form
+
+-->
 <script type="text/javascript">
     RED.nodes.registerType('ui-mainswitch', {
         category: RED._('@flowfuse/node-red-dashboard/ui-base:ui-base.label.category'),
@@ -14,6 +19,7 @@
             topicAuto: { value: "" },
             switchTo: {value: 0 },
             colorsCustom: {value: {} },
+            languageCustom: {value: {} },
             width: {
                 value: 0,
                 validate: function (v) {
@@ -51,6 +57,10 @@
               ]
             });
             $("#node-input-colorsCustom").typedInput({
+                type:"json",
+                types:["json"]
+            });
+            $("#node-input-languageCustom").typedInput({
                 type:"json",
                 types:["json"]
             });
@@ -104,5 +114,9 @@
     <div class="form-row">
         <label for="node-input-colorsCustom"><i class="fa fa-hand"></i> Custom Colors</label>
         <input type="text" id="node-input-colorsCustom">
+    </div>
+    <div class="form-row">
+        <label for="node-input-languageCustom"><i class="fa fa-hand"></i> Custom Language</label>
+        <input type="text" id="node-input-languageCustom">
     </div>
 </script>
