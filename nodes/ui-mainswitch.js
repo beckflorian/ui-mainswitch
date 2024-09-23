@@ -1,4 +1,5 @@
-// seperate downstreams
+// var let
+// condition
 
 module.exports = function (RED) {
     function UIMainswitchNode (config) {
@@ -149,7 +150,8 @@ module.exports = function (RED) {
             editEvent: 'Edit Event',
             cancel: 'Cancel',
             ok: 'OK',
-            deleteConfirm: 'Do you really want to delete this event?'
+            deleteConfirm: 'Do you really want to delete this event?',
+            noData: 'No event yet...'
         };
 
 
@@ -385,6 +387,61 @@ module.exports = function (RED) {
         }
 
 
+
+        // get config from html and prepare the node
+        this.topicOut = config.topicOut;
+        this.topicFeedback = config.topicFeedback;
+        this.topicAuto = config.topicAuto;
+
+        // variables for the node
+        this.timerNextEvent = {};
+        this.lastMainSwitch = 0;
+        this.status = {
+            mainSwitch: 0,
+            interval: 14,
+            intervalSecs: 1200,
+            auto: AUTO_UNDEF,
+            autoIn: INPUT_UNDEF,
+            feedback: INPUT_UNDEF,
+            countdownSec: -1,
+            switchToText: 'Off',
+            events: [],
+            timerIn: TIMER_UNDEF,
+            timerRunning: TIMER_NOT_RUNNING,
+            timerNextEventSec: -1,
+            timerNextEventState: false,
+            lastSetter: ""
+        };
+
+        // extend config for the widget
+        config.tickInterval = TICK_INTERVAL;
+        config.colors = objectMerger(COLORS, JSON.parse(config.colorsCustom));
+        config.language = objectMerger(LANGUAGE, JSON.parse(config.languageCustom));
+
+        // get context store
+        var context = this.context();
+
+        // this is the node
+        var node = this;
+
+        // load timer events from the context store
+        node.status.events = context.get('events') || [];
+        updateEvents();
+        
+        // add node.id to status
+        node.status.nodeId = node.id
+
+        // run ticker every second
+        const tick = setInterval(ticker, 1000, node.status);
+
+        // kill the ticker
+        node.on("close", function () {
+            if (tick) { 
+                clearInterval(tick); }
+            done()
+        });
+        
+
         // server-side event handlers
         const evts = {
             onAction: true,
@@ -426,13 +483,13 @@ module.exports = function (RED) {
 
             onSocket: {
                 // widget sends change of mainSwitch
-                'downMainswitch': function (conn, id, msg) {
-                    // console.info('"downMainswitch" received:', conn.id, id, msg)
+                ['downMainswitch' + node.id]: function (conn, id, msg) {
+                    console.info('downMainswitch${node.id} received:', conn.id, id, msg)
                     setMainSwitch(msg.payload);
                 },
 
                 // widget sends change of countdown interval
-                'downInterval': function (conn, id, msg) {
+                ['downInterval' + node.id]: function (conn, id, msg) {
                     // console.info('"downInterval" received:', conn.id, id, msg)
                     node.status.interval = msg.payload;
                     node.status.intervalSecs = msg.secs;
@@ -440,7 +497,7 @@ module.exports = function (RED) {
                 },
 
                 // widget sends changes from timer event form
-                'downEvents': function (conn, id, msg) {
+                ['downEvents' + node.id]: function (conn, id, msg) {
                     // console.info('"downEvents" received:', conn.id, id, msg)
                     node.status.events = msg.payload;
                     context.set('events', node.status.events); // store in context store
@@ -449,65 +506,12 @@ module.exports = function (RED) {
                 },
 
                 // widget askes for actual status
-                'update-status': function (conn, id, msg) {
+                ['update-status' + node.id]: function (conn, id, msg) {
                     // console.info('"update-status" received:', conn.id, id)
                     updateStatus() // to widget
                 }
             }
         }
-
-
-        // get config from html and prepare the node
-        this.topicOut = config.topicOut;
-        this.topicFeedback = config.topicFeedback;
-        this.topicAuto = config.topicAuto;
-
-        // variables for the node
-        this.timerNextEvent = {};
-        this.lastMainSwitch = 0;
-        this.status = {
-            mainSwitch: 0,
-            interval: 14,
-            intervalSecs: 1200,
-            auto: AUTO_UNDEF,
-            autoIn: INPUT_UNDEF,
-            feedback: INPUT_UNDEF,
-            countdownSec: -1,
-            switchToText: 'Off',
-            events: [],
-            timerIn: TIMER_UNDEF,
-            timerRunning: TIMER_NOT_RUNNING,
-            timerNextEventSec: -1,
-            timerNextEventState: false,
-            lastSetter: ""
-        };
-
-        // extend config for the widget
-        config.tickInterval = TICK_INTERVAL;
-        config.colors = objectMerger(COLORS, JSON.parse(config.colorsCustom));
-        config.language = objectMerger(LANGUAGE, JSON.parse(config.languageCustom));
-
-        // get context store
-        var context = this.context();
-
-        // this is the node
-        var node = this;
-
-        // load timer events from the context store
-        node.status.events = context.get('events') || [];
-        updateEvents();
-
-        // run ticker every second
-        const tick = setInterval(ticker, 1000, node.status);
- 
-        // kill the ticker
-        node.on("close", function () {
-            console.log("onClose")
-            if (tick) { 
-                console.log("onClear")
-                clearInterval(tick); }
-            done()
-        });
 
         // inform the dashboard UI that we are adding this node
         if (group) {

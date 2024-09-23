@@ -1,5 +1,4 @@
 <!--
-Reset button
 Code Cleanup
 -->
 <template>
@@ -262,7 +261,7 @@ Code Cleanup
                 </v-icon>
               </template>
               <template v-slot:no-data>
-                <v-btn color="primary" @click="initialize"> Reset </v-btn>
+                {{this.props.language.noData}}
               </template>
             </v-data-table>
           </v-row>
@@ -271,7 +270,7 @@ Code Cleanup
   </v-expansion-panels>
 
 <!--
-          {{tableHeaders}}{{maxInterval}}
+          {{this.id}}{{maxInterval}}
 
 {{colorPicker('countdown')}} {{mainSwitchColor_2}}
         <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
@@ -292,8 +291,8 @@ Code Cleanup
             but will be expanded in future.
         </p>
         <pre>{{ state }}</pre>
-
--->    </div>
+-->
+  </div>
 </template>
 
 <script>
@@ -302,29 +301,29 @@ import { markRaw } from 'vue'
 import { mapState } from 'vuex'
 
 export default {
-  name: 'UIMainswitch',
-  inject: ['$socket'],
-  props: {
-    /* do not remove entries from this - Dashboard's Layout Manager's will pass this data to your component */
-    id: { type: String, required: true },
-    props: { type: Object, default: () => ({}) },
-    state: { type: Object, default: () => ({ enabled: false, visible: false }) }
-  },
-  setup (props) {
-    console.info('UIMainswitch setup with:', props)
-    console.debug('Vue function loaded correctly', markRaw)
-  },
-  data () {
-    return {
-      input: {
-        title: 'some text here will base turned into title case.'
-      },
-      vuetifyStyles: [
-        { label: 'Responsive Displays', url: 'https://vuetifyjs.com/en/styles/display/#display' },
-        { label: 'Flex', url: 'https://vuetifyjs.com/en/styles/flex/' },
-        { label: 'Spacing', url: 'https://vuetifyjs.com/en/styles/spacing/#how-it-works' },
-        { label: 'Text & Typography', url: 'https://vuetifyjs.com/en/styles/text-and-typography/#typography' }
-      ],
+    name: 'UIMainswitch',
+    inject: ['$socket'],
+    props: {
+        /* do not remove entries from this - Dashboard's Layout Manager's will pass this data to your component */
+        id: { type: String, required: true },
+        props: { type: Object, default: () => ({}) },
+        state: { type: Object, default: () => ({ enabled: false, visible: false }) }
+    },
+    setup (props) {
+        console.info('UIMainswitch setup with:', props)
+        console.debug('Vue function loaded correctly', markRaw)
+    },
+    data () {
+        return {
+            input: {
+                title: 'some text here will base turned into title case.'
+            },
+            vuetifyStyles: [
+                { label: 'Responsive Displays', url: 'https://vuetifyjs.com/en/styles/display/#display' },
+                { label: 'Flex', url: 'https://vuetifyjs.com/en/styles/flex/' },
+                { label: 'Spacing', url: 'https://vuetifyjs.com/en/styles/spacing/#how-it-works' },
+                { label: 'Text & Typography', url: 'https://vuetifyjs.com/en/styles/text-and-typography/#typography' }
+            ],
       startTimeErrorMessage: "",
       durationErrorMessage:"",
        actionColors : {
@@ -478,12 +477,12 @@ export default {
         })
         this.$socket.on('updateStatus:' + this.id, (msg) => {
           this.status = msg.payload
-          console.log('updateStatus: ' +  msg.payload)
+          // console.log('updateStatus: ' +  msg.payload)
         })
         // tell Node-RED that we're loading a new instance of this widget
         this.$socket.emit('widget-load', this.id)
         // request update of status
-        this.$socket.emit('update-status', this.id)
+        this.$socket.emit('update-status' + this.status.nodeId, this.id)
     },
     unmounted () {
         /* Make sure, any events you subscribe to on SocketIO are unsubscribed to here */
@@ -540,16 +539,16 @@ export default {
             See the ui-mainswitch.js file for how to subscribe to these.
         */
         updateMainswitch(){
-          console.info('downMainswitch: ' + this.status.mainSwitch)
-          this.$socket.emit('downMainswitch', this.id, { payload: this.status.mainSwitch })
+          console.info('downMainswitch' + this.status.nodeId + ' payload: ' + this.status.mainSwitch)
+          this.$socket.emit('downMainswitch' + this.status.nodeId, this.id, { payload: this.status.mainSwitch })
         },
         updateInterval(){
           console.info('downInterval: ' + { payload: this.status.intervall, secs: this.props.tickInterval[this.status.interval]['secs'] })
-          this.$socket.emit('downInterval', this.id, { payload: this.status.interval, secs: this.props.tickInterval[this.status.interval]['secs'] })
+          this.$socket.emit('downInterval' + this.status.nodeId, this.id, { payload: this.status.interval, secs: this.props.tickInterval[this.status.interval]['secs'] })
         },
         updateEvents(){
           console.info('downEvents: ' + this.status.events )
-          this.$socket.emit('downEvents', this.id, {payload: this.status.events })
+          this.$socket.emit('downEvents' + this.status.nodeId, this.id, {payload: this.status.events })
         },
       editItem(item) {
         this.editedIndex = this.status.events.indexOf(item)
