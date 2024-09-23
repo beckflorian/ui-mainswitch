@@ -1,5 +1,5 @@
 <!--
-Code Cleanup
+
 -->
 <template>
   <!-- Component must be wrapped in a block so props such as className and style can be passed in from parent -->
@@ -315,65 +315,39 @@ export default {
     },
     data () {
         return {
-            input: {
-                title: 'some text here will base turned into title case.'
-            },
             vuetifyStyles: [
                 { label: 'Responsive Displays', url: 'https://vuetifyjs.com/en/styles/display/#display' },
                 { label: 'Flex', url: 'https://vuetifyjs.com/en/styles/flex/' },
                 { label: 'Spacing', url: 'https://vuetifyjs.com/en/styles/spacing/#how-it-works' },
                 { label: 'Text & Typography', url: 'https://vuetifyjs.com/en/styles/text-and-typography/#typography' }
             ],
-      startTimeErrorMessage: "",
-      durationErrorMessage:"",
-       actionColors : {
-        on: 'green',
-        off: 'red',
-        ud: 'grey'
-      },
-      statusColors : {
-        on: 'yellow-darken-2',
-        off: 'light-blue-accent-3',
-        ud: 'grey'
-      },
-      dialog: false,
-      dialogDelete: false,
-      events: [],
-      editedIndex: -1,
-      editedItem: {
-        startTime: '',
-        duration: '',
-        active: true,
-        day: [true, true, true, true, true, true, true],
-      },
-      defaultItem: {
-        startTime: '',
-        duration: '',
-        active: true,
-        day: [true, true, true, true, true, true, true],
-      },
-      colorScheme: {
-        on: 'green',
-        off: 'red',
-        auto: 'blue',
-        man: 'black',
-        bg: 'grey-lighten-4',
-        bga: 'grey-lighten-2',
-        autoOn: 'yellow-darken-2',
-        autoOff: 'light-blue-accent-3',
-      },
-      mainSwitchStates: ['on', 'off', 'auto', 'man'],
-      autoColor: 'grey',
-      status: {
-        mainSwitch: 0,
-        interval: 14,
-        events: [],
-        feedback: 'ud',
-        auto: 'ud' 
-      },
-      mainSwitchColors: ['red', 'green', 'blue', 'grey']
-    }
-  },
+            startTimeErrorMessage: "",
+            durationErrorMessage:"",
+            dialog: false,
+            dialogDelete: false,
+            events: [],
+            editedIndex: -1,
+            editedItem: {
+                startTime: '',
+                duration: '',
+                active: true,
+                day: [true, true, true, true, true, true, true],
+            },
+            defaultItem: {
+                startTime: '',
+                duration: '',
+                active: true,
+                day: [true, true, true, true, true, true, true],
+            },
+            status: {
+                mainSwitch: 0,
+                interval: 14,
+                events: [],
+                feedback: null,
+                auto: null 
+            }
+        }
+    },
 
     computed: {
         tableHeaders () {
@@ -395,47 +369,39 @@ export default {
             );
             return headers;
         },
-    maxInterval () {
-      return this.props.tickInterval.length - 1
-    },
-      formTitle() {
-        return this.editedIndex === -1
-          ? this.props.language.newEvent
-          : this.props.language.editEvent
-      },
-    titleCase () {
-      return toTitleCase(this.input.title)
-    },
-    showInterval() {
-      return this.props.tickInterval[this.status.interval]['text']
-    },
-    readOnlySlider() {
-      return (this.status.mainSwitch == 3)
-    },
-    feedbackColor() {
-      return this.actionColors[this.status.feedback]
-    },
-    autoColor() {
-      return this.statusColors[this.status.auto]
-    },
-    mainSwitchColor_2() {
-      return this.props.colors.mainSwitchAuto[(this.status.mainSwitch == 2)][this.status.auto]
-    },
-    showCountdown() {
-      return (this.status.countdownSec >= 0)
-    },
-  ...mapState('data', ['messages'])
-  },
-    watch: {
-      dialog(val) {
-        val || this.close()
-      },
-      dialogDelete(val) {
-        val || this.closeDelete()
-      },
+        maxInterval () {
+            return this.props.tickInterval.length - 1
+        },
+        formTitle() {
+            return this.editedIndex === -1
+              ? this.props.language.newEvent
+              : this.props.language.editEvent
+        },
+        showInterval() {
+            return this.props.tickInterval[this.status.interval]['text']
+        },
+        readOnlySlider() {
+            return (this.status.mainSwitch == 3)
+        },
+        mainSwitchColor_2() {
+            return this.props.colors.mainSwitchAuto[(this.status.mainSwitch == 2)][this.status.auto]
+        },
+        showCountdown() {
+            return (this.status.countdownSec >= 0)
+        },
+        ...mapState('data', ['messages'])
     },
 
-   mounted () {
+    watch: {
+        dialog(val) {
+            val || this.close()
+        },
+        dialogDelete(val) {
+            val || this.closeDelete()
+        },
+    },
+
+    mounted () {
         this.$socket.on('widget-load:' + this.id, (msg) => {
             // load the latest message from the Node-RED datastore when this widget is loaded
             // storing it in our vuex store so that we have it saved as we navigate around
@@ -444,171 +410,111 @@ export default {
                 msg
             })
         })
-        this.$socket.on('msg-input:' + this.id, (msg) => {
-            // store the latest message in our client-side vuex store when we receive a new message
-            this.$store.commit('data/bind', {
-                widgetId: this.id,
-                msg
-            })
-        })
-        this.$socket.on('mainswitchOut:' + this.id, (msg) => {
-          console.log(msg.payload)
-          if (msg.payload) {
-            this.mainLabelColor = this.colorScheme['on']
-          } else {
-            this.mainLabelColor = this.colorScheme['off']
-          }            
-        })
-        this.$socket.on('feedback:' + this.id, (msg) => {
-          this.feedbackColor = this.colorScheme[msg.payload]
-          console.log(msg.payload)
-        })
-        this.$socket.on('auto:' + this.id, (msg) => {
-          this.autoColor = this.colorScheme[msg.payload]
-          console.log(msg.payload)
-        })
-        this.$socket.on('upMainswitch:' + this.id, (msg) => {
-          this.mainswitch = msg.payload
-          console.log('upMainswitch: ' +  msg.payload)
-        })
-        this.$socket.on('upTimer:' + this.id, (msg) => {
-          this.timerSek = msg.payload
-          console.log('upTimer: ' +  msg.payload)
-        })
         this.$socket.on('updateStatus:' + this.id, (msg) => {
           this.status = msg.payload
-          // console.log('updateStatus: ' +  msg.payload)
+          // console.debug('updateStatus: ' +  msg.payload)
         })
         // tell Node-RED that we're loading a new instance of this widget
         this.$socket.emit('widget-load', this.id)
         // request update of status
         this.$socket.emit('update-status' + this.status.nodeId, this.id)
     },
+    
     unmounted () {
         /* Make sure, any events you subscribe to on SocketIO are unsubscribed to here */
         this.$socket?.off('widget-load:' + this.id)
-        this.$socket?.off('msg-input:' + this.id)
-        this.$socket?.off('mainswitchOut:' + this.id)
-        this.$socket?.off('feedback:' + this.id)
-        this.$socket?.off('auto:' + this.id)
-        this.$socket?.off('upMainswitch:' + this.id)
-        this.$socket?.off('upTimer:' + this.id)
+        this.$socket?.off('updateStatus:' + this.id)
     },
+    
     methods: {
-        /*
-            widget-action just sends a msg to Node-RED, it does not store the msg state server-side
-            alternatively, you can use widget-change, which will also store the msg in the Node's datastore
-        */
         send (msg) {
             this.$socket.emit('widget-action', this.id, msg)
         },
-        alert (text) {
-            alert(text)
+        mainSwitchColor(key) {
+            return this.props.colors.mainSwitch[key]
         },
-      mainSwitchColor(key) {
-        return this.props.colors.mainSwitch[key]
-      },
-      mainSwitchColorX(key) {
-        if (this.status.mainSwitch == key) {
-          return this.props.colors.mainSwitch[4]
-        } else {
-          return this.props.colors.mainSwitch[key]
-        }
-      },
-      elevated(item) {
-        return (item == this.status.lastSetter)
-      },
-      secondsToTime(key) {
-        console.log(this.status[key])
-        var sec = 0
-        if (this.status[key] > 0) sec = this.status[key]
-        return `${String(Math.floor(sec / 3600)).padStart(2, '0')}:${String(Math.floor((sec % 3600) / 60)).padStart(2, '0')}:${String(sec%60).padStart(2, '0')}`
-      },
-      colorPicker(key) {
-        if (key in this.status) {
-          return this.props.colors[key][this.status[key]] //dynamic
-        } else {
-          return this.props.colors[key] //static
-        }
-      },
-        tester () {
-          alert(this.mainswitch)
+        mainSwitchColorX(key) {
+            if (this.status.mainSwitch == key) {
+               return this.props.colors.mainSwitch[4]
+            } else {
+               return this.props.colors.mainSwitch[key]
+            }
         },
-        /*
-            You can also emit custom events to Node-RED, which can be handled by a custom event handler
-            See the ui-mainswitch.js file for how to subscribe to these.
-        */
+        elevated(item) {
+            return (item == this.status.lastSetter)
+        },
+        secondsToTime(key) {
+            let sec = 0
+            if (this.status[key] > 0) sec = this.status[key]
+                return `${String(Math.floor(sec / 3600)).padStart(2, '0')}:${String(Math.floor((sec % 3600) / 60)).padStart(2, '0')}:${String(sec%60).padStart(2, '0')}`
+        },
+        colorPicker(key) {
+            if (key in this.status) {
+                return this.props.colors[key][this.status[key]] //dynamic
+            } else {
+              return this.props.colors[key] //static
+            }
+        },
         updateMainswitch(){
-          console.info('downMainswitch' + this.status.nodeId + ' payload: ' + this.status.mainSwitch)
-          this.$socket.emit('downMainswitch' + this.status.nodeId, this.id, { payload: this.status.mainSwitch })
+            console.info('downMainswitch: payload: ' + this.status.mainSwitch)
+            this.$socket.emit('downMainswitch' + this.status.nodeId, this.id, { payload: this.status.mainSwitch })
         },
         updateInterval(){
-          console.info('downInterval: ' + { payload: this.status.intervall, secs: this.props.tickInterval[this.status.interval]['secs'] })
-          this.$socket.emit('downInterval' + this.status.nodeId, this.id, { payload: this.status.interval, secs: this.props.tickInterval[this.status.interval]['secs'] })
+            console.info('downInterval: ' + { payload: this.status.intervall, secs: this.props.tickInterval[this.status.interval]['secs'] })
+            this.$socket.emit('downInterval' + this.status.nodeId, this.id, { payload: this.status.interval, secs: this.props.tickInterval[this.status.interval]['secs'] })
         },
         updateEvents(){
-          console.info('downEvents: ' + this.status.events )
-          this.$socket.emit('downEvents' + this.status.nodeId, this.id, {payload: this.status.events })
+            console.info('downEvents: ' + this.status.events )
+            this.$socket.emit('downEvents' + this.status.nodeId, this.id, {payload: this.status.events })
         },
-      editItem(item) {
-        this.editedIndex = this.status.events.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-
-      deleteItem(item) {
-        this.editedIndex = this.status.events.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
-      },
-
-      deleteItemConfirm() {
-        this.status.events.splice(this.editedIndex, 1)
-        this.updateEvents()
-        this.closeDelete()
-      },
-
-      close() {
-        this.dialog = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-
-      closeDelete() {
-        this.dialogDelete = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-
-      save() {
-        if (!this.editedItem.startTime) {
-          this.startTimeErrorMessage = 'Sie müssen eine Zeit eingeben.'
-          this.durationErrorMessage = ''
-        } else if (!this.editedItem.duration) {
-          this.durationErrorMessage = 'Sie müssen eine Zeit eingeben.'
-          this.startTimeErrorMessage = ''
-        } else {
-          this.startTimeErrorMessage = ''
-          this.durationErrorMessage = ''
-          if (this.editedIndex > -1) {
-            Object.assign(this.status.events[this.editedIndex], this.editedItem)
-          } else {
-            this.status.events.push(this.editedItem)
-          }
-          this.updateEvents()
-          this.close()
-        } 
-      },
-        test () {
-            console.info('custom event handler:')
-            this.$socket.emit('my-custom-event', this.id, {
-                payload: 'Custom Event'
+        editItem(item) {
+            this.editedIndex = this.status.events.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialog = true
+        },
+        deleteItem(item) {
+            this.editedIndex = this.status.events.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialogDelete = true
+        },
+        deleteItemConfirm() {
+            this.status.events.splice(this.editedIndex, 1)
+            this.updateEvents()
+            this.closeDelete()
+        },
+        close() {
+            this.dialog = false
+            this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
             })
-        }
+        },
+        closeDelete() {
+            this.dialogDelete = false
+            this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
+        },
+        save() {
+            if (!this.editedItem.startTime) {
+                this.startTimeErrorMessage = 'Sie müssen eine Zeit eingeben.'
+                this.durationErrorMessage = ''
+            } else if (!this.editedItem.duration) {
+                this.durationErrorMessage = 'Sie müssen eine Zeit eingeben.'
+                this.startTimeErrorMessage = ''
+            } else {
+                this.startTimeErrorMessage = ''
+                this.durationErrorMessage = ''
+                if (this.editedIndex > -1) {
+                    Object.assign(this.status.events[this.editedIndex], this.editedItem)
+                } else {
+                    this.status.events.push(this.editedItem)
+                }
+                this.updateEvents()
+                this.close()
+            } 
+        },
     }
 }
 </script>

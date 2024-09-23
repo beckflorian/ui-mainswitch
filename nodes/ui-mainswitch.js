@@ -484,7 +484,7 @@ module.exports = function (RED) {
             onSocket: {
                 // widget sends change of mainSwitch
                 ['downMainswitch' + node.id]: function (conn, id, msg) {
-                    console.info('downMainswitch${node.id} received:', conn.id, id, msg)
+                    // console.info('downMainswitch${node.id} received:', conn.id, id, msg)
                     setMainSwitch(msg.payload);
                 },
 
