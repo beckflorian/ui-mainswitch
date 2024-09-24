@@ -265,32 +265,30 @@
               </template>
             </v-data-table>
           </v-row>
-      </v-expansion-panel-text>
-    </v-expansion-panel>
-  </v-expansion-panels>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
 
 <!--
-          {{this.id}}{{maxInterval}}
-
-{{colorPicker('countdown')}} {{mainSwitchColor_2}}
-        <pre>&lt;v-btn @click="alert('Hello World')"&gt;Alert "Hello World"&lt;/v-btn&gt;</pre>
-        <v-btn @click="alert('Hello World')">Alert "Hello World"</v-btn>
-
-        <h3><code>this.props</code></h3>
-        <p>The <code>props</code> object contains the properties defined in the widget's configuration in Node-RED.</p>
-        <pre>{{ props }}</pre>
-
-        <h3><code>this.status</code></h3>
-        <p>The <code>status</code> object contains the properties defined in the widget's configuration in Node-RED.</p>
-        <pre>{{ status }}</pre>
-
-        <h3><code>this.state</code></h3>
-        <p>
-            The <code>state</code> object contains the current visibility &amp; behavioural state of the widget,
-            including whether it is enabled and visible. This is not yet fully functionality in Dashboard 2.0,
-            but will be expanded in future.
-        </p>
-        <pre>{{ state }}</pre>
+    <v-row>
+      <v-col>
+        <v-sheet class="pa-4" color="grey-lighten-3">
+          <pre>{{ props }}</pre>
+        </v-sheet>
+      </v-col>
+      <v-col>
+        <v-sheet class="pa-4" color="grey-lighten-3">
+          <pre>{{ status }}</pre>
+        </v-sheet>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-sheet class="pa-4" color="grey-lighten-3">
+          <pre>{{ state }}</pre>
+        </v-sheet>
+      </v-col>
+    </v-row>
 -->
   </div>
 </template>
