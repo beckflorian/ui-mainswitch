@@ -1,6 +1,5 @@
 <!--
 check imports
-classes
 -->
 <template>
   <!-- Component must be wrapped in a block so props such as className and style can be passed in from parent -->
@@ -295,7 +294,6 @@ classes
 </template>
 
 <script>
-import toTitleCase from 'to-title-case'
 import { markRaw } from 'vue'
 import { mapState } from 'vuex'
 
@@ -521,9 +519,4 @@ export default {
 <style scoped>
 /* CSS is auto scoped, but using named classes is still recommended */
 @import "../stylesheets/ui-mainswitch.css";
-
-.v-expansion-panel-text {
-  background-color: #F0F0F0;
-}
-
 </style>

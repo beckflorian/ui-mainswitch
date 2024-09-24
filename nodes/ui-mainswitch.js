@@ -1,4 +1,3 @@
-// var let
 // condition
 
 module.exports = function (RED) {
@@ -157,12 +156,12 @@ module.exports = function (RED) {
 
         // helper function for calculating, on what weekday and what time an event occurs
         function checkWeekdays(days, now, weekday, day, hours, minutes, state) {
-            var dates = []; // one item per day
+            const dates = []; // one item per day
 
             // for every day
             days.forEach(function (d, j) {
-                var date = new Date();
-                var dateDay = day - weekday + j;
+                const date = new Date();
+                const dateDay = day - weekday + j;
                 date.setDate(dateDay);
                 date.setSeconds(0);
                 date.setMilliseconds(0);
@@ -183,16 +182,16 @@ module.exports = function (RED) {
                 Intl.DateTimeFormat('de-DE', { day: 'numeric' }).format(now)
             );
 
-            var ntp = []; // one item per event and state (true/false)
+            let ntp = []; // one item per event and state (true/false)
             // for every event
             events.forEach(function (e, i) {
                 if (e.active === true) { // event active?
 
                     // get start and end, hors and minutes
-                    var startHour = parseInt(e.startTime.split(':')[0])
-                    var startMinute = parseInt(e.startTime.split(':')[1])
-                    var endHour = parseInt(e.duration.split(':')[0]) + startHour
-                    var endMinute = parseInt(e.duration.split(':')[1]) + startMinute
+                    const startHour = parseInt(e.startTime.split(':')[0])
+                    const startMinute = parseInt(e.startTime.split(':')[1])
+                    const endHour = parseInt(e.duration.split(':')[0]) + startHour
+                    const endMinute = parseInt(e.duration.split(':')[1]) + startMinute
 
                     // generating "On" Times
                     ntp = ntp.concat(
@@ -210,7 +209,7 @@ module.exports = function (RED) {
                 return [null, false];
             } else {
                 // get the next event
-                var orderNtp = ntp.sort(function (a, b) {
+                const orderNtp = ntp.sort(function (a, b) {
                     return Date.parse(a.time) - Date.parse(b.time)
                 });
                 return orderNtp[0];
@@ -220,9 +219,8 @@ module.exports = function (RED) {
 
         // to be executed every second: countdown running? event occurring?
         function ticker (sta) {
-            // console.log(node.id)
-            var now = new Date();
-            // console.log(now)
+            const now = new Date();
+
             // countdown
             if (sta.countdownSec >= 0) { // active?
                 if (sta.countdownSec === 0) { // Countdown run down?
@@ -354,7 +352,7 @@ module.exports = function (RED) {
                     if (coloring === undefined) {
                         return source;
                     } else {
-                        var resultArray = [];
+                        const resultArray = [];
                         // walk through the elements of the array
                         source.forEach((el, i) => {
                             resultArray.push(objectMerger(source[i], coloring[i]));
@@ -364,7 +362,7 @@ module.exports = function (RED) {
                 } else { // object
                     var resultObject = {}
                     // walk through the elements of the object
-                    for(var key in source){
+                    for(key in source){
                         if(source.hasOwnProperty(key)){
                             // something to replace?
                             if (coloring.hasOwnProperty(key)){
@@ -419,10 +417,10 @@ module.exports = function (RED) {
         config.language = objectMerger(LANGUAGE, JSON.parse(config.languageCustom));
 
         // get context store
-        var context = this.context();
+        const context = this.context();
 
         // this is the node
-        var node = this;
+        const node = this;
 
         // load timer events from the context store
         node.status.events = context.get('events') || [];
