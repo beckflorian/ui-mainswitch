@@ -24,8 +24,37 @@ The node/widget integrates some interesting features:
 - Colors are customizable.
 - Language/Labels are customizable.
 
-### Customization of colors:
-In the editor you can customize the color settings by declaring an object - complete or partially - like this:
+## Customizing the node in the editor
+
+### Name:
+Name of the node diplayed in the editor.
+
+### Group:
+Group the widget renders in the Dashboard 2.0
+
+### Size:
+Size of the widget, if you use a grid layout.
+
+### Switch Label (1):
+Label for the switch. The color of this label changes with the state of the "feedback" input from your acuator.
+
+### Feedback Icon (2):
+Icon for the switch label. The color of this label/icon changes with the state of the "feedback" input from your acuator.
+
+### Feddback Topic:
+Specify a topic for your feedback input. "Feedback" input accepts a boolean payload (true, false, 1, 0, On, Off...).
+
+### Auto Topic:
+If you specify an Auto Topic, the "autoIn" input is active. "autoIn" input accepts a boolean payload (true, false, 1, 0, On, Off...).
+
+### Auto Label(3):
+Label for "autoIn". The color of this label changes with the state of the "autoIn" input.
+
+### Output Topic:
+If you specify an output topic, the output messge will have this topic. Otherwise the topic is empty.
+
+### Colors:
+In the editor you can customize the color settings by declaring an object - complete or partial - like this:
 ```
 {
     "expansionPanelTitle":"pink",
@@ -73,8 +102,8 @@ In the editor you can customize the color settings by declaring an object - comp
 }
 ```
 
-### Customization of language:
-In the editor you can customize the language settings by declaring an object - complete or partially - like this:
+### Language:
+In the editor you can customize the language settings by declaring an object - complete or partial - like this:
 ```
 {
     "events":"Events",
