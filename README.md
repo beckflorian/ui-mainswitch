@@ -77,47 +77,23 @@ In the editor you can customize the color settings by declaring an object - comp
 In the editor you can customize the language settings by declaring an object - complete or partially - like this:
 ```
 {
-    "expansionPanelTitle":"pink",
-    "mainSwitch":[
-        "red-darken-1",
-        "green-darken-1",
-        "blue-darken-1",
-        "black","white"
-    ],
-    "mainSwitchAuto":{
-        "false":{
-            "false":"red-darken-1",
-            "true":"green-darken-1",
-            "null":"grey-darken-1"
-        },
-        "true":{
-            "false":"red-lighten-3",
-            " true":"green-lighten-3",
-            "null":"grey-lighten-2"
-        }
-    },
-    "inhibition":[
-        "brown-lighten-3",
-        "purple","grey"
-    ],
-    "autoIn":{
-        "false":"light-blue-lighten-3",
-        "true":"yellow-lighten-2"
-    },
-    "timerIn":{
-        "false":"light-blue-lighten-3",
-        "true":"yellow-lighten-2"
-    },
-    "feedback":{
-        "false":"red-darken-1",
-        "true":"green-darken-1",
-        "null":"grey-darken-1"
-    },
-    "countdown":"deep-purple",
-    "eventToolbar":"amber",
-    "slider":"amber",
-    "plus":"red",
-    "activeActive":"green",
-    "activeInactive":"red"
+    "events":"Events",
+    "start":"Start",
+    "duration":"Duration",
+    "actions":"Actions",
+    "active":"active",
+    "inactive":"inactive",
+    "activeLabel":"Active?",
+    "until":"until",
+    "off":"Off",
+    "auto":"Auto",
+    "dayLabels":["Su","Mo","Tu","We","Th","Fr","Sa"],
+    "dayOrder":[0,1,2,3,4,5,6],
+    "newEvent":"New Event",
+    "editEvent":"Edit Event",
+    "cancel":"Cancel",
+    "ok":"OK",
+    "deleteConfirm":"Do you really want to delete this event?",
+    "noData":"No event yet..."
 }
 ```
