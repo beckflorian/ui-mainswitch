@@ -24,6 +24,37 @@ The node/widget integrates some interesting features:
 - Colors are customizable.
 - Language/Labels are customizable.
 
+## In- an Outputs
+
+### MainSwitch - Input:
+You can set the state of the switch.
+topic: empty/no topic
+payload: 0..3 (off, on, auto, countdown)
+default: 0
+
+### MainSwitch - Output:
+Output to your actuator or .....
+topic: empty or specified in the editor
+payload: boolean (true, flase)
+
+### Interval - Input:
+Sets the interval for the countdown in 29 steps.
+topic: 'interval'
+payload: 0..28 (4 seconds to 72 hours)
+default: 14
+
+### Feedback - Input:
+This is where the feedback of your actuator goes to. The background-color of the Label(1) changes according to this input.
+topic: set the topic in the editor.
+payload: boolean (true, false, 0, 1, on, off, ...)
+default: null
+
+### autoIn - Input:
+Stes the autoIn-state of the node. The background-color of the Label(3) changes according to this input.
+topic: set the topic in the editor. If left empty, this feature is inactive.
+payload: boolean (true, false, 0, 1, on, off, ...)
+default: null
+
 ## Customizing the node in the editor
 
 ### Name:
