@@ -21,7 +21,7 @@ The node/widget integrates some interesting features:
 - Integrated countdown to activate the output for a selectable time, independent from timer and autoIn.
 - Topics for "autoIn", "Feedback" and "output" are customizable.
 - Icon and Label for "Feedback"/"Switchname" is customizable.
-- Colors ar customizable.
+- Colors are customizable.
 - Language/Labels are customizable.
 
 ### Customization of colors:
