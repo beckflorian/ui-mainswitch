@@ -1,8 +1,3 @@
-<!--
-init colors, language
-sort form
-
--->
 <script type="text/javascript">
     RED.nodes.registerType('ui-mainswitch', {
         category: RED._('@flowfuse/node-red-dashboard/ui-base:ui-base.label.category'),
@@ -17,9 +12,8 @@ sort form
             topicFeedback: { value: "" },
             autoLabel: { value: "" },
             topicAuto: { value: "" },
-            switchTo: {value: 0 },
-            colorsCustom: {value: {} },
-            languageCustom: {value: {} },
+            colorsCustom: { value: "{}" },
+            languageCustom: { value: "{}" },
             width: {
                 value: 0,
                 validate: function (v) {
@@ -84,16 +78,16 @@ sort form
         <button class="editor-button" id="node-input-size"></button>
     </div>
     <div class="form-row">
+        <label for="node-input-topicOut"><i class="fa fa-hand"></i> Output Topic</label>
+        <input type="text" id="node-input-topicOut">
+    </div>
+    <div class="form-row">
         <label for="node-input-switchLabel"><i class="fa fa-hand"></i> Switch Label</label>
         <input type="text" id="node-input-switchLabel">
     </div>
     <div class="form-row">
         <label for="node-input-feedbackIcon"><i class="fa fa-hand"></i> Feedback Icon</label>
         <input type="text" id="node-input-feedbackIcon">
-    </div>
-    <div class="form-row">
-        <label for="node-input-topicOut"><i class="fa fa-hand"></i> Output Topic</label>
-        <input type="text" id="node-input-topicOut">
     </div>
     <div class="form-row">
         <label for="node-input-topicFeedback"><i class="fa fa-hand"></i> Feedback Topic</label>
@@ -106,10 +100,6 @@ sort form
     <div class="form-row">
         <label for="node-input-topicAuto"><i class="fa fa-hand"></i> Auto Topic</label>
         <input type="text" id="node-input-topicAuto">
-    </div>
-    <div class="form-row">
-        <label for="node-input-switchTo"><i class="fa fa-hand"></i> Switch To</label>
-        <input type="text" id="node-input-switchTo">
     </div>
     <div class="form-row">
         <label for="node-input-colorsCustom"><i class="fa fa-hand"></i> Custom Colors</label>

@@ -1,5 +1,3 @@
-// condition
-
 module.exports = function (RED) {
     function UIMainswitchNode (config) {
         RED.nodes.createNode(this, config);
@@ -109,24 +107,24 @@ module.exports = function (RED) {
 
         // default colors
         const COLORS = {
-            expansionPanelTitle: 'pink',
-            mainSwitch: ['red-darken-1', 'green-darken-1', 'blue-darken-1', 'black', 'white'],
+            expansionPanelTitle: 'blue',
+            mainSwitch: ['red-darken-1', 'green-darken-1', 'blue', 'black', 'white'],
             mainSwitchAuto: {
                 false: {false: 'red-darken-1', true: 'green-darken-1', null: 'grey-darken-1'},
-                true: {false: 'red-lighten-3', true: 'green-lighten-3', null: 'grey-lighten-2'}
+                true: {false: 'red-lighten-2', true: 'green-lighten-3', null: 'grey-lighten-2'}
             },
             inhibition: ['brown-lighten-3', 'purple', 'grey'],
             inhibitionToolbar: 'blue-lighten-3',
             measurements: ['light-blue-lighten-3'],
-            autoIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-2'},
-            timerIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-2'},
+            autoIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-1'},
+            timerIn: {false: 'light-blue-lighten-3', true: 'yellow-lighten-1'},
             feedback: {false: 'red-darken-1', true: 'green-darken-1', null: 'grey-darken-1'},
-            countdown: 'deep-purple',
-            eventToolbar: 'amber',
-            slider: 'amber',
-            plus: 'red',
-            activeActive: 'green',
-            activeInactive: 'red',
+            countdown: 'black',
+            eventToolbar: 'blue-lighten-3',
+            slider: 'black',
+            plus: 'green-darken-1',
+            activeActive: 'green-darken-1',
+            activeInactive: 'red-darken-1',
         };
 
 
@@ -152,6 +150,14 @@ module.exports = function (RED) {
             deleteConfirm: 'Do you really want to delete this event?',
             noData: 'No event yet...'
         };
+        
+        
+        const STATUS = [
+            {fill: 'red', text: 'Off'},
+            {fill: 'blue', text: 'On'},
+            {fill: 'blue', text: 'Auto'},
+            {fill: 'grey', text: 'Countdown'}
+        ];
 
 
         // helper function for calculating, on what weekday and what time an event occurs
@@ -218,72 +224,93 @@ module.exports = function (RED) {
 
 
         // to be executed every second: countdown running? event occurring?
-        function ticker (sta) {
+        function ticker (cond) {
             const now = new Date();
 
             // countdown
-            if (sta.countdownSec >= 0) { // active?
-                if (sta.countdownSec === 0) { // Countdown run down?
-                    node.status.mainSwitch = node.lastMainSwitch; // set to last state before countdown
+            if (cond.countdownSec >= 0) { // active?
+                if (cond.countdownSec === 0) { // Countdown run down?
+                    node.condition.mainSwitch = node.lastMainSwitch; // set to last state before countdown
                     stateMachine();
                 }
-                node.status.countdownSec = sta.countdownSec - 1; // count down
+                node.condition.countdownSec = cond.countdownSec - 1; // count down
             }
 
             // timer events
             if (node.timerNextEvent['time'] < now) { // event takes place?
-                node.status.auto = node.timerNextEvent['state']; // set state
-                node.status.timerIn = node.timerNextEvent['state'];
-                node.status.lastSetter = "timer"; // who did set that state?
+                node.condition.auto = node.timerNextEvent['state']; // set state
+                node.condition.timerIn = node.timerNextEvent['state'];
+                node.condition.lastSetter = "timer"; // who did set that state?
                 updateEvents(); // generate next event
                 stateMachine();
             }
 
             // calculate next time and state to display in widget
             if (node.timerNextEvent['time']) {
-                node.status.timerNextEventSec = Math.floor((node.timerNextEvent['time'] - now) / 1000);
-                node.status.timerNextEventState = node.timerNextEvent['state'];
-                node.status.timerRunning = TIMER_RUNNING;
+                node.condition.timerNextEventSec = Math.floor((node.timerNextEvent['time'] - now) / 1000);
+                node.condition.timerNextEventState = node.timerNextEvent['state'];
+                node.condition.timerRunning = TIMER_RUNNING;
             } else { // no event
-                node.status.timerNextEventSec = null;
-                node.status.timerRunning = TIMER_NOT_RUNNING;
+                node.condition.timerNextEventSec = null;
+                node.condition.timerRunning = TIMER_NOT_RUNNING;
             }
 
             // send to widget
-            updateStatus()
+            updateCondition()
         }
 
 
-        // send status to widget
-        function updateStatus() { // update widget
-            base.emit('updateStatus:' + node.id, { payload: node.status }, node);
+        // send condition to widget
+        function updateCondition() { // update widget and node.status
+            base.emit('updateCondition:' + node.id, { payload: node.condition }, node);
+            let statusShape = 'dot';
+            if (node.condition.feedback !== INPUT_ON) {
+                statusShape = 'ring';
+            }
+            let statusText = STATUS[node.condition.mainSwitch].text
+            if (node.condition.mainSwitch === 2) { // auto?
+                if (node.condition.auto === AUTO_ON) {
+                    statusText = STATUS[node.condition.mainSwitch].text + '-On';
+                } else {
+                    statusText = STATUS[node.condition.mainSwitch].text + '-Off';
+                }
+            }
+            if (node.condition.mainSwitch === 3) { // countdown
+                statusText = STATUS[node.condition.mainSwitch].text + ': ' + node.condition.countdownSec;
+            }
+            node.status({
+                fill: STATUS[node.condition.mainSwitch].fill,
+                shape: statusShape,
+                text: statusText
+            });
+
         }
 
 
         // calculate the next occurence of a timer event
         function updateEvents() {
-            node.timerNextEvent = nextTakePlace(node.status.events)
+            node.timerNextEvent = nextTakePlace(node.condition.events)
         }
 
 
         // manage some things when the mainSwitch state changes
         function setMainSwitch(input) {
             // countdown?
-            if (input == 3 && node.status.interval !== undefined){
-                node.status.countdownSec = node.status.intervalSecs;
+            if (input == 3 && node.condition.interval !== undefined){
+                node.condition.countdownSec = node.condition.intervalSecs;
 
-                // preserv mainSwitch status for the next change from auto to ?
-                if (node.status.mainSwitch == 2) {
+                // preserv mainSwitch state for the next change from auto to ?
+                if (node.condition.mainSwitch == 2) {
                     node.lastMainSwitch = 2; 
-                    node.status.switchToText = LANGUAGE.auto;
+                    node.condition.switchToText = LANGUAGE.auto;
                 } else {
                     node.lastMainSwitch = 0;
-                    node.status.switchToText = LANGUAGE.off;
+                    node.condition.switchToText = LANGUAGE.off;
                 }
             }
 
-            node.status.mainSwitch = input;
-            updateStatus();
+            node.condition.mainSwitch = input;
+            updateCondition();
             stateMachine();
         }
 
@@ -306,22 +333,22 @@ module.exports = function (RED) {
 
         // bring the things together
         function stateMachine() {
-            switch (node.status.mainSwitch) {
+            switch (node.condition.mainSwitch) {
                 case 0:
                     mainswitchOut(OUT_OFF);
-                    node.status.countdownSec = -1; // reset Countdown (potentially)
+                    node.condition.countdownSec = -1; // reset Countdown (potentially)
                     break;
                 case 1:
                     mainswitchOut(OUT_ON);
-                    node.status.countdownSec = -1; // reset Coundown (potentially)
+                    node.condition.countdownSec = -1; // reset Coundown (potentially)
                    break;
                 case 2:
-                    if (node.status.auto === AUTO_ON) {
+                    if (node.condition.auto === AUTO_ON) {
                         mainswitchOut(OUT_ON);
                    } else {
                         mainswitchOut(OUT_OFF);
                     }
-                    node.status.countdownSec = -1; // reset Countdown (potentially)
+                    node.condition.countdownSec = -1; // reset Countdown (potentially)
                     break;
                 case 3:
                     mainswitchOut(OUT_ON);
@@ -394,7 +421,7 @@ module.exports = function (RED) {
         // variables for the node
         this.timerNextEvent = {};
         this.lastMainSwitch = 0;
-        this.status = {
+        this.condition = {
             mainSwitch: 0,
             interval: 14,
             intervalSecs: 1200,
@@ -423,15 +450,15 @@ module.exports = function (RED) {
         const node = this;
 
         // load timer events from the context store
-        node.status.events = context.get('events') || [];
+        node.condition.events = context.get('events') || [];
         updateEvents();
         
-        // add node.id to status
-        node.status.nodeId = node.id
+        // add node.id to condition
+        node.condition.nodeId = node.id
 
         // run ticker every second
-        const tick = setInterval(ticker, 1000, node.status);
-
+        const tick = setInterval(ticker, 1000, node.condition);
+        
         // kill the ticker
         node.on("close", function () {
             if (tick) { 
@@ -456,25 +483,25 @@ module.exports = function (RED) {
                 if (msg.topic == "interval") {
                     var interval = parseInt(msg.payload);
                     if (interval >= 0 && interval <= TICK_INTERVAL.length) { // check the allouwed values
-                        node.status.interval = interval;
-                        //node.status.interval = TICK_INTERVAL[interval]['text'];
-                        node.status.intervalSecs = TICK_INTERVAL[interval]['secs'];
-                        updateStatus(); // to widget
+                        node.condition.interval = interval;
+                        //node.condition.interval = TICK_INTERVAL[interval]['text'];
+                        node.condition.intervalSecs = TICK_INTERVAL[interval]['secs'];
+                        updateCondition(); // to widget
                     }
                 }
 
                 // for feedback from actuator
                 if (node.topicFeedback != "" && msg.topic == node.topicFeedback) {
-                    node.status.feedback = parseBool(msg.payload);
-                    updateStatus(); // to widget
+                    node.condition.feedback = parseBool(msg.payload);
+                    updateCondition(); // to widget
                 }
 
                 // for autoIn
                 if (node.topicAuto != "" && msg.topic == node.topicAuto) {
-                    node.status.auto = parseBool(msg.payload); // for the stateMachine
-                    node.status.autoIn = parseBool(msg.payload); // for the chip in the widget
-                    node.status.lastSetter = "autoIn"; // highlight what input set auto
-                    updateStatus(); // to widget
+                    node.condition.auto = parseBool(msg.payload); // for the stateMachine
+                    node.condition.autoIn = parseBool(msg.payload); // for the chip in the widget
+                    node.condition.lastSetter = "autoIn"; // highlight what input set auto
+                    updateCondition(); // to widget
                     stateMachine(); // switch output?
                 }
             },
@@ -489,24 +516,24 @@ module.exports = function (RED) {
                 // widget sends change of countdown interval
                 ['downInterval' + node.id]: function (conn, id, msg) {
                     // console.info('"downInterval" received:', conn.id, id, msg)
-                    node.status.interval = msg.payload;
-                    node.status.intervalSecs = msg.secs;
-                    updateStatus(); // to widget
+                    node.condition.interval = msg.payload;
+                    node.condition.intervalSecs = msg.secs;
+                    updateCondition(); // to widget
                 },
 
                 // widget sends changes from timer event form
                 ['downEvents' + node.id]: function (conn, id, msg) {
                     // console.info('"downEvents" received:', conn.id, id, msg)
-                    node.status.events = msg.payload;
-                    context.set('events', node.status.events); // store in context store
+                    node.condition.events = msg.payload;
+                    context.set('events', node.condition.events); // store in context store
                     updateEvents();
-                    updateStatus(); // to widget
+                    updateCondition(); // to widget
                 },
 
-                // widget askes for actual status
-                ['update-status' + node.id]: function (conn, id, msg) {
-                    // console.info('"update-status" received:', conn.id, id)
-                    updateStatus() // to widget
+                // widget askes for actual condition
+                ['update-condition' + node.id]: function (conn, id, msg) {
+                    // console.info('"update-condition" received:', conn.id, id)
+                    updateCondition() // to widget
                 }
             }
         }

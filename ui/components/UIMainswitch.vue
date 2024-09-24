@@ -31,7 +31,7 @@ check imports
                 size="default"
                 prepend-icon="mdi-timer-sand"
               >
-                {{secondsToTime('countdownSec')}} {{this.props.language.until}} {{status.switchToText}}
+                {{secondsToTime('countdownSec')}} {{this.props.language.until}} {{condition.switchToText}}
               </v-chip>
             </v-col>
             <v-spacer></v-spacer>
@@ -56,7 +56,7 @@ check imports
                 :elevation="elevated('timer') ? 7 : 2"
                 variant="elevated"
                 size="default"
-                v-if="status.timerRunning"
+                v-if="condition.timerRunning"
               >
                 {{secondsToTime('timerNextEventSec')}}
               </v-chip>
@@ -67,7 +67,7 @@ check imports
           <v-row align="center">
             <v-col cols="auto">
               <v-btn-toggle
-                v-model="status.mainSwitch"
+                v-model="condition.mainSwitch"
                 @update:modelValue="updateMainswitch()"
                 class=""
                 mandatory
@@ -101,7 +101,7 @@ check imports
                 show-ticks
                 step="1"
                 tick-size="1"
-                v-model="status.interval"
+                v-model="condition.interval"
                 @update:modelValue="updateInterval()"
                 prepend-icon="mdi-timer-sand"
                 min-width="20em"
@@ -118,7 +118,7 @@ check imports
           <v-row>
             <v-data-table
               :headers="tableHeaders"
-              :items="status.events"
+              :items="condition.events"
               :sort-by="[{ key: 'startTime', order: 'asc' }]"
               density="compact"
               :hide-default-footer="true"
@@ -278,7 +278,7 @@ check imports
       </v-col>
       <v-col>
         <v-sheet class="pa-4" color="grey-lighten-3">
-          <pre>{{ status }}</pre>
+          <pre>{{ condition }}</pre>
         </v-sheet>
       </v-col>
     </v-row>
@@ -336,7 +336,7 @@ export default {
                 active: true,
                 day: [true, true, true, true, true, true, true],
             },
-            status: {
+            condition: {
                 mainSwitch: 0,
                 interval: 14,
                 events: [],
@@ -375,16 +375,16 @@ export default {
               : this.props.language.editEvent
         },
         showInterval() {
-            return this.props.tickInterval[this.status.interval]['text']
+            return this.props.tickInterval[this.condition.interval]['text']
         },
         readOnlySlider() {
-            return (this.status.mainSwitch == 3)
+            return (this.condition.mainSwitch == 3)
         },
         mainSwitchColor_2() {
-            return this.props.colors.mainSwitchAuto[(this.status.mainSwitch == 2)][this.status.auto]
+            return this.props.colors.mainSwitchAuto[(this.condition.mainSwitch == 2)][this.condition.auto]
         },
         showCountdown() {
-            return (this.status.countdownSec >= 0)
+            return (this.condition.countdownSec >= 0)
         },
         ...mapState('data', ['messages'])
     },
@@ -407,20 +407,20 @@ export default {
                 msg
             })
         })
-        this.$socket.on('updateStatus:' + this.id, (msg) => {
-          this.status = msg.payload
-          // console.debug('updateStatus: ' +  msg.payload)
+        this.$socket.on('updateCondition:' + this.id, (msg) => {
+          this.condition = msg.payload
+          // console.debug('updateCondition: ' +  msg.payload)
         })
         // tell Node-RED that we're loading a new instance of this widget
         this.$socket.emit('widget-load', this.id)
-        // request update of status
-        this.$socket.emit('update-status' + this.status.nodeId, this.id)
+        // request update of condition
+        this.$socket.emit('update-condition' + this.condition.nodeId, this.id)
     },
     
     unmounted () {
         /* Make sure, any events you subscribe to on SocketIO are unsubscribed to here */
         this.$socket?.off('widget-load:' + this.id)
-        this.$socket?.off('updateStatus:' + this.id)
+        this.$socket?.off('updateCondition:' + this.id)
     },
     
     methods: {
@@ -431,51 +431,51 @@ export default {
             return this.props.colors.mainSwitch[key]
         },
         mainSwitchColorX(key) {
-            if (this.status.mainSwitch == key) {
+            if (this.condition.mainSwitch == key) {
                return this.props.colors.mainSwitch[4]
             } else {
                return this.props.colors.mainSwitch[key]
             }
         },
         elevated(item) {
-            return (item == this.status.lastSetter)
+            return (item == this.condition.lastSetter)
         },
         secondsToTime(key) {
             let sec = 0
-            if (this.status[key] > 0) sec = this.status[key]
+            if (this.condition[key] > 0) sec = this.condition[key]
                 return `${String(Math.floor(sec / 3600)).padStart(2, '0')}:${String(Math.floor((sec % 3600) / 60)).padStart(2, '0')}:${String(sec%60).padStart(2, '0')}`
         },
         colorPicker(key) {
-            if (key in this.status) {
-                return this.props.colors[key][this.status[key]] //dynamic
+            if (key in this.condition) {
+                return this.props.colors[key][this.condition[key]] //dynamic
             } else {
               return this.props.colors[key] //static
             }
         },
         updateMainswitch(){
-            console.info('downMainswitch: payload: ' + this.status.mainSwitch)
-            this.$socket.emit('downMainswitch' + this.status.nodeId, this.id, { payload: this.status.mainSwitch })
+            console.info('downMainswitch: payload: ' + this.condition.mainSwitch)
+            this.$socket.emit('downMainswitch' + this.condition.nodeId, this.id, { payload: this.condition.mainSwitch })
         },
         updateInterval(){
-            console.info('downInterval: ' + { payload: this.status.intervall, secs: this.props.tickInterval[this.status.interval]['secs'] })
-            this.$socket.emit('downInterval' + this.status.nodeId, this.id, { payload: this.status.interval, secs: this.props.tickInterval[this.status.interval]['secs'] })
+            console.info('downInterval: ' + { payload: this.condition.intervall, secs: this.props.tickInterval[this.condition.interval]['secs'] })
+            this.$socket.emit('downInterval' + this.condition.nodeId, this.id, { payload: this.condition.interval, secs: this.props.tickInterval[this.condition.interval]['secs'] })
         },
         updateEvents(){
-            console.info('downEvents: ' + this.status.events )
-            this.$socket.emit('downEvents' + this.status.nodeId, this.id, {payload: this.status.events })
+            console.info('downEvents: ' + this.condition.events )
+            this.$socket.emit('downEvents' + this.condition.nodeId, this.id, {payload: this.condition.events })
         },
         editItem(item) {
-            this.editedIndex = this.status.events.indexOf(item)
+            this.editedIndex = this.condition.events.indexOf(item)
             this.editedItem = Object.assign({}, item)
             this.dialog = true
         },
         deleteItem(item) {
-            this.editedIndex = this.status.events.indexOf(item)
+            this.editedIndex = this.condition.events.indexOf(item)
             this.editedItem = Object.assign({}, item)
             this.dialogDelete = true
         },
         deleteItemConfirm() {
-            this.status.events.splice(this.editedIndex, 1)
+            this.condition.events.splice(this.editedIndex, 1)
             this.updateEvents()
             this.closeDelete()
         },
@@ -504,9 +504,9 @@ export default {
                 this.startTimeErrorMessage = ''
                 this.durationErrorMessage = ''
                 if (this.editedIndex > -1) {
-                    Object.assign(this.status.events[this.editedIndex], this.editedItem)
+                    Object.assign(this.condition.events[this.editedIndex], this.editedItem)
                 } else {
-                    this.status.events.push(this.editedItem)
+                    this.condition.events.push(this.editedItem)
                 }
                 this.updateEvents()
                 this.close()
