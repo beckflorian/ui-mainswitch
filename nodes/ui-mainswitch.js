@@ -150,8 +150,8 @@ module.exports = function (RED) {
             deleteConfirm: 'Do you really want to delete this event?',
             noData: 'No event yet...'
         };
-        
-        
+
+
         const STATUS = [
             {fill: 'red', text: 'Off'},
             {fill: 'blue', text: 'On'},
@@ -260,6 +260,12 @@ module.exports = function (RED) {
         }
 
 
+        // Turns Seconds to time
+        function secsToTime(sec) {
+            return `${String(Math.floor(sec / 3600)).padStart(2, '0')}:${String(Math.floor((sec % 3600) / 60)).padStart(2, '0')}:${String(sec%60).padStart(2, '0')}`
+        }
+
+
         // send condition to widget
         function updateCondition() { // update widget and node.status
             base.emit('updateCondition:' + node.id, { payload: node.condition }, node);
@@ -270,13 +276,13 @@ module.exports = function (RED) {
             let statusText = STATUS[node.condition.mainSwitch].text
             if (node.condition.mainSwitch === 2) { // auto?
                 if (node.condition.auto === AUTO_ON) {
-                    statusText = STATUS[node.condition.mainSwitch].text + '-On';
+                    statusText = STATUS[node.condition.mainSwitch].text + '-On: ' + secsToTime(node.condition.timerNextEventSec);
                 } else {
-                    statusText = STATUS[node.condition.mainSwitch].text + '-Off';
+                    statusText = STATUS[node.condition.mainSwitch].text + '-Off: ' + secsToTime(node.condition.timerNextEventSec);
                 }
             }
             if (node.condition.mainSwitch === 3) { // countdown
-                statusText = STATUS[node.condition.mainSwitch].text + ': ' + node.condition.countdownSec;
+                statusText = STATUS[node.condition.mainSwitch].text + ': ' + secsToTime(node.condition.countdownSec);
             }
             node.status({
                 fill: STATUS[node.condition.mainSwitch].fill,
@@ -284,6 +290,8 @@ module.exports = function (RED) {
                 text: statusText
             });
 
+            // output status t osecond output
+            node.send([ null, { payload: statusText } ]);
         }
 
 
@@ -310,6 +318,7 @@ module.exports = function (RED) {
             }
 
             node.condition.mainSwitch = input;
+            context.set('mainSwitch', input); // store in context store
             updateCondition();
             stateMachine();
         }
@@ -319,14 +328,9 @@ module.exports = function (RED) {
         function mainswitchOut(out) {
             // output topic set?
             if (node.topicOut !== "") {
-                node.send( {
-                    payload: out,
-                    topic: node.topicOut
-                });
+                node.send([ { payload: out, topic: node.topicOut }, null]);
             } else {
-                node.send({
-                    payload: out
-                });
+                node.send([{ payload: out }, null]);
             }
         }
 
@@ -451,21 +455,26 @@ module.exports = function (RED) {
 
         // load timer events from the context store
         node.condition.events = context.get('events') || [];
+
+        // load mainSwitch from context store if Auto?
+        if (context.get('mainSwitch') ===  2) {
+            node.condition.mainSwitch = 2
+        }
         updateEvents();
-        
+
         // add node.id to condition
         node.condition.nodeId = node.id
 
         // run ticker every second
         const tick = setInterval(ticker, 1000, node.condition);
-        
+
         // kill the ticker
         node.on("close", function () {
             if (tick) { 
                 clearInterval(tick); }
             done()
         });
-        
+
 
         // server-side event handlers
         const evts = {
