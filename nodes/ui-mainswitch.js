@@ -364,7 +364,7 @@ module.exports = function (RED) {
             if (input in BOOL_INPUT_PARSER) {
                 return BOOL_INPUT_PARSER[input];
             } else {
-                return INPUT_NOT_SET;
+                return INPUT_UNDEF;
             }
         }
 
