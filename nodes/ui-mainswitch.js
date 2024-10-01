@@ -163,7 +163,6 @@ module.exports = function (RED) {
         // helper function for calculating, on what weekday and what time an event occurs
         function checkWeekdays(days, now, weekday, day, hours, minutes, state) {
             const dates = []; // one item per day
-
             // for every day
             days.forEach(function (d, j) {
                 const date = new Date();
@@ -173,7 +172,7 @@ module.exports = function (RED) {
                 date.setMilliseconds(0);
                 date.setHours(parseInt(hours));
                 date.setMinutes(parseInt(minutes));
-                if (date < now) date.setDate(dateDay + 7)
+                if (date < now) date.setDate(date.getDate() +  7)
                     if (d == true) dates.push({ time: date, state: state }) //only if weekdayday is checked
             });
 
@@ -267,7 +266,7 @@ module.exports = function (RED) {
 
 
         // send condition to widget
-        function updateCondition() { // update widget and node.status
+        function updateCondition() { // update widget and node.condition
             base.emit('updateCondition:' + node.id, { payload: node.condition }, node);
             let statusShape = 'dot';
             if (node.condition.feedback !== INPUT_ON) {
@@ -466,11 +465,11 @@ module.exports = function (RED) {
         node.condition.nodeId = node.id
 
         // run ticker every second
-        const tick = setInterval(ticker, 1000, node.condition);
+        node.tick = setInterval(ticker, 1000, node.condition);
 
         // kill the ticker
         node.on("close", function () {
-            if (tick) { 
+            if (node.tick) { 
                 clearInterval(tick); }
             done()
         });
