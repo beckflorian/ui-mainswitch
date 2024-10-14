@@ -153,3 +153,7 @@ In the editor you can customize the language settings by declaring an object - c
     "noData":"No event yet..."
 }
 ```
+### Disclaimer:
+Of course, this software is completely opensource and offered with absolutely NO WARRANTY whatsoever offered or implied.
+
+If you choose to set up your own control system for actuators, and your house burns to the ground, it's your problem, nothing to do with this software as there is no warranty whatsoever. Up to you to use it completely at your own risk. So YOU HAVE BEEN WARNED!
