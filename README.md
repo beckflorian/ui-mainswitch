@@ -3,24 +3,28 @@
 ### Inputs
 #### *MainSwitch*
 : payload (string [0..3, off, on, auto, countdown]) : set the state of the MainSwitch.
+
 : *topic* (string) : empty/no topic.
 
 #### *Interval*
-: payload (string [0..28]) : set the interval for the countdown in 29 steps (4 seconds to 72 hours) .
+: payload (string [0..28]) : set the interval for the countdown in 29 steps (4 seconds to 72 hours).
+
 : *topic* (string) : 'interval'
 
 #### *Feedback*
-: payload (string [true, false, 0, 1, on, off, On, Off, ON, OFF]) : set the feedback of your actuator. The background-color of the Feedback-Label changes according to this input..
+: payload (string [true, false, 0, 1, on, off, On, Off, ON, OFF]) : set the feedback of your actuator. The background-color of the Feedback-Label changes according to this input.
+
 : *topic* (string) : set the topic in the editor.
 
 #### *AutoIn*
 : payload (string [true, false, 0, 1, on, off, On, Off, ON, OFF]) : set the AutoInState of the node. If MainSwitch is "auto" this will activate or inactivate the output.
-: *topic* (string) : set the topic in the editor.
 
+: *topic* (string) : set the topic in the editor.
 
 ### Outputs
 #### *MainSwitch*
 : payload (string [true, false]) : output of MainSwitch.
+
 : *topic* (string) : empty/set the topic in the editor.
 
 ### Details
