@@ -2,22 +2,22 @@
 
 ### Inputs
 #### *MainSwitch*
-: payload (string [0..3, off, on, auto, countdown]) : set the state of the MainSwitch.
+: payload (string [0..3, off, on, auto, countdown]) : set the 'state' of the MainSwitch.
 
 : *topic* (string) : empty/no topic.
 
 #### *Interval*
-: payload (string [0..28]) : set the interval for the countdown in 29 steps (4 seconds to 72 hours).
+: payload (string [0..28]) : set the 'interval' for the countdown in 29 steps (4 seconds to 72 hours).
 
 : *topic* (string) : 'interval'
 
 #### *Feedback*
-: payload (string [true, false, 0, 1, on, off, On, Off, ON, OFF]) : set the feedback of your actuator. The background-color of the Feedback-Label changes according to this input.
+: payload (string [true, false, 0, 1, on, off, On, Off, ON, OFF]) : set the 'feedback' of your actuator. The background-color of the Feedback-Label changes according to this input.
 
 : *topic* (string) : set the topic in the editor.
 
 #### *AutoIn*
-: payload (string [true, false, 0, 1, on, off, On, Off, ON, OFF]) : set the AutoInState of the node. If MainSwitch is "auto" this will activate or inactivate the output.
+: payload (string [true, false, 0, 1, on, off, On, Off, ON, OFF]) : set the 'autoInState' of the node. If 'mainSwitchState' is "auto" this will activate or inactivate the output.
 
 : *topic* (string) : set the topic in the editor.
 
@@ -52,6 +52,9 @@ The node/widget integrates some interesting features:
 - Icon and Label for "Feedback"/"Switchname" is customizable.
 - Colors are customizable.
 - Language/Labels are customizable.
+
+#### *Data retention:*
+It is recommended to set the contextStorage to "localfilesystem" in 'settings.js' if you want do keep the state of the switch and the events of the timer when stopping/restarting node-red.
 
 ### Customizing the node in the editor
 
