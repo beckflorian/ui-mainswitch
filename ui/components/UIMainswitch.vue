@@ -454,15 +454,15 @@ export default {
         },
         updateMainswitch(){
             console.info('downMainswitch: payload: ' + this.condition.mainSwitch)
-            this.$socket.emit('downMainswitch' + this.condition.nodeId, this.id, { payload: this.condition.mainSwitch })
+            this.$socket.emit('downMainswitch' + this.id, this.id, { payload: this.condition.mainSwitch })
         },
         updateInterval(){
             console.info('downInterval: ' + { payload: this.condition.intervall, secs: this.props.tickInterval[this.condition.interval]['secs'] })
-            this.$socket.emit('downInterval' + this.condition.nodeId, this.id, { payload: this.condition.interval, secs: this.props.tickInterval[this.condition.interval]['secs'] })
+            this.$socket.emit('downInterval' + this.id, this.id, { payload: this.condition.interval, secs: this.props.tickInterval[this.condition.interval]['secs'] })
         },
         updateEvents(){
             console.info('downEvents: ' + this.condition.events )
-            this.$socket.emit('downEvents' + this.condition.nodeId, this.id, {payload: this.condition.events })
+            this.$socket.emit('downEvents' + this.id, this.id, {payload: this.condition.events })
         },
         editItem(item) {
             this.editedIndex = this.condition.events.indexOf(item)
