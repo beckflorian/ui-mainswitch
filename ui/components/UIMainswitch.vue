@@ -34,6 +34,18 @@ check imports
                 {{secondsToTime('countdownSec')}} {{this.props.language.until}} {{condition.switchToText}}
               </v-chip>
             </v-col>
+            <v-col cols="auto" justify="start" v-else>
+              <v-chip
+                class="ma-1 rounded"
+                :color="avatarColor()"
+                density="compact"
+                variant="flat"
+                elevation="2"
+                size="default"
+              >
+                {{avatarCharacter()}}
+              </v-chip>
+            </v-col>
             <v-spacer></v-spacer>
             <v-col cols="auto" justify="end">
               <v-chip
@@ -336,6 +348,12 @@ export default {
                 active: true,
                 day: [true, true, true, true, true, true, true],
             },
+            avatarChars: [
+                "O",
+                "I",
+                "A",
+                ""
+            ],
             condition: {
                 mainSwitch: 0,
                 interval: 14,
@@ -436,6 +454,12 @@ export default {
             } else {
                return this.props.colors.mainSwitch[key]
             }
+        },
+        avatarColor() {
+            return this.props.colors.mainSwitch[this.condition.mainSwitch]
+        },
+        avatarCharacter() {
+            return this.avatarChars[this.condition.mainSwitch]
         },
         elevated(item) {
             return (item == this.condition.lastSetter)
