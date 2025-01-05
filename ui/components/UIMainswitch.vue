@@ -409,12 +409,13 @@ export default {
         })
         this.$socket.on('updateCondition:' + this.id, (msg) => {
           this.condition = msg.payload
-          // console.debug('updateCondition: ' +  msg.payload)
+          //console.debug('updateCondition: ' +  msg.payload)
+          console.debug(msg.payload)
         })
         // tell Node-RED that we're loading a new instance of this widget
         this.$socket.emit('widget-load', this.id)
         // request update of condition
-        this.$socket.emit('update-condition' + this.condition.nodeId, this.id)
+        this.$socket.emit('update-condition' + this.id, this.id)
     },
     
     unmounted () {
