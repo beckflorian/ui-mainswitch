@@ -268,6 +268,7 @@ module.exports = function (RED) {
         // send condition to widget
         function updateCondition() { // update widget and node.condition
             base.emit('updateCondition:' + node.id, { payload: node.condition }, node);
+
             let statusShape = 'dot';
             if (node.condition.feedback !== INPUT_ON) {
                 statusShape = 'ring';
@@ -289,7 +290,7 @@ module.exports = function (RED) {
                 text: statusText
             });
 
-            // output status t osecond output
+            // output status to second output
             node.send([ null, { payload: statusText } ]);
         }
 
@@ -465,12 +466,13 @@ module.exports = function (RED) {
         node.condition.nodeId = node.id
 
         // run ticker every second
+        // node.tick = setInterval(ticker, 1000, node.condition);
         node.tick = setInterval(ticker, 1000, node.condition);
 
         // kill the ticker
         node.on("close", function () {
             if (node.tick) { 
-                clearInterval(tick); }
+                clearInterval(node.tick); }
             done()
         });
 
@@ -517,13 +519,13 @@ module.exports = function (RED) {
             onSocket: {
                 // widget sends change of mainSwitch
                 ['downMainswitch' + node.id]: function (conn, id, msg) {
-                    // console.info('downMainswitch${node.id} received:', conn.id, id, msg)
+                     console.info('"downMainswitch" received:', conn.id, id, msg)
                     setMainSwitch(msg.payload);
                 },
 
                 // widget sends change of countdown interval
                 ['downInterval' + node.id]: function (conn, id, msg) {
-                    // console.info('"downInterval" received:', conn.id, id, msg)
+                     console.info('"downInterval" received:', conn.id, id, msg)
                     node.condition.interval = msg.payload;
                     node.condition.intervalSecs = msg.secs;
                     updateCondition(); // to widget
@@ -531,7 +533,7 @@ module.exports = function (RED) {
 
                 // widget sends changes from timer event form
                 ['downEvents' + node.id]: function (conn, id, msg) {
-                    // console.info('"downEvents" received:', conn.id, id, msg)
+                     console.info('"downEvents" received:', conn.id, id, msg)
                     node.condition.events = msg.payload;
                     context.set('events', node.condition.events); // store in context store
                     updateEvents();
@@ -540,7 +542,7 @@ module.exports = function (RED) {
 
                 // widget askes for actual condition
                 ['update-condition' + node.id]: function (conn, id, msg) {
-                    // console.info('"update-condition" received:', conn.id, id)
+                     console.info('"update-condition" received:', conn.id, id)
                     updateCondition() // to widget
                 }
             }
