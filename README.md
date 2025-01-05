@@ -155,6 +155,9 @@ In the editor you can customize the language settings by declaring an json-objec
 }
 ```
 
+### Known Issues
+After Deploy a Browser Refresh is necessary.
+
 ### References
 
  - [GitHub](https://github.com/beckflorian/ui-mainswitch) - the nodes github repository
